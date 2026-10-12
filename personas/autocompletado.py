@@ -8,10 +8,10 @@ class PersonasLookup(Personas):
         return Personas.objects.filter(Q(num_identificacion__icontains=q) | Q(primer_nombre__icontains=q) | Q(primer_apellido__icontains=q) | Q(email__icontains=q))
 
     def format_result(self,personas):
-        return u'%s - %s %s' % (personas.num_identificacion, personas.primer_nombre, personas.primer_apellido)
+        return '%s - %s %s' % (personas.num_identificacion, personas.primer_nombre, personas.primer_apellido)
 
     def format_item(self,Personas):
-        return unicode(Personas)
+        return str(Personas)
 
     def get_objects(self,ids):
         return Personas.objects.filter(pk__in=ids).order_by('num_identificacion','primer_nombre','primer_apellido')

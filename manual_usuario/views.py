@@ -16,7 +16,7 @@ class Manual(View):
         context = {}
         seccion = ''
         mostrar_todos = False
-        if kwargs.has_key('manual_id'):
+        if 'manual_id' in kwargs:
             seccion_id = kwargs['manual_id']
             modulos = SubModulo.objects.filter(modulo__id=seccion_id)
             if not modulos.exists():

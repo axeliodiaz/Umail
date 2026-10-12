@@ -37,9 +37,9 @@ def do_print_inbox_count(parser, token):
     bits = token.contents.split()
     if len(bits) > 1:
         if len(bits) != 3:
-            raise TemplateSyntaxError, "inbox_count tag takes either no arguments or exactly two arguments"
+            raise TemplateSyntaxError("inbox_count tag takes either no arguments or exactly two arguments")
         if bits[1] != 'as':
-            raise TemplateSyntaxError, "first argument to inbox_count tag must be 'as'"
+            raise TemplateSyntaxError("first argument to inbox_count tag must be 'as'")
         return InboxOutput(bits[2])
     else:
         return InboxOutput()
@@ -73,14 +73,14 @@ def destin(tipo_dest,id_message):
     if destinatario:
         if mensajes.count() > 1:
             if destinatario.__unicode__().__len__() <= 23:
-                return u'%s y %s más' %(destinatario.__unicode__()[:23], mensajes.count()-1)
+                return '%s y %s más' %(destinatario.__unicode__()[:23], mensajes.count()-1)
             else:
-                return u'%s... y %s más' %(destinatario.__unicode__()[:23], mensajes.count()-1)
+                return '%s... y %s más' %(destinatario.__unicode__()[:23], mensajes.count()-1)
         else:
             if destinatario.__unicode__().__len__() <= 23:
                 return destinatario
             else:
-                return u'%s...' %(destinatario.__unicode__()[:23])
+                return '%s...' %(destinatario.__unicode__()[:23])
     else:
         return 'Nadie hasta ahora'
 register.filter(destin)

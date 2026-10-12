@@ -58,22 +58,22 @@ class ComposeForm(forms.ModelForm):
                   }
     def clean(self):
         # Si hizo click en enviar, debe validar todos los campos
-        if self.data.has_key('enviar'):
+        if 'enviar' in self.data:
             # Validar destinatario obligatorio
-            if not self.data.has_key('recipient'):
-                raise forms.ValidationError(u'No seleccionó ningún destinatario. Por favor, indique para quién es el memorándum')
+            if 'recipient' not in self.data:
+                raise forms.ValidationError('No seleccionó ningún destinatario. Por favor, indique para quién es el memorándum')
 
             # Validar asunto obligatorio
             if self.cleaned_data['subject'] == '':
-                raise forms.ValidationError(u'No introdujo ningún asunto. Por favor ingrese el resumen del contenido del memorándum')
+                raise forms.ValidationError('No introdujo ningún asunto. Por favor ingrese el resumen del contenido del memorándum')
 
             # Validar cuerpo obligatorio
-            if not self.data.has_key('body'):
-                raise forms.ValidationError(u'No introdujo ningún mensaje. Por favor ingrese el contenido del memorándum')
+            if 'body' not in self.data:
+                raise forms.ValidationError('No introdujo ningún mensaje. Por favor ingrese el contenido del memorándum')
 
         for con_copia in self.cleaned_data['con_copia']:
             if self.cleaned_data['recipient'].__contains__(con_copia):
-                raise forms.ValidationError(u'%s está "con copia" y se encuentra entre los destinatarios. Debe estar sólo en uno de ambos campos' %(con_copia))
+                raise forms.ValidationError('%s está "con copia" y se encuentra entre los destinatarios. Debe estar sólo en uno de ambos campos' %(con_copia))
 
         return self.cleaned_data
 

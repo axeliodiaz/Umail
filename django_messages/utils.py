@@ -23,7 +23,7 @@ def format_quote(sender, body):
     for i, line in enumerate(lines):
         lines[i] = "> %s" % line
     quote = '\n'.join(lines)
-    return ugettext(u"%(sender)s wrote:\n%(body)s") % {
+    return ugettext("%(sender)s wrote:\n%(body)s") % {
         'sender': sender,
         'body': quote
     }
@@ -38,26 +38,26 @@ def format_subject(subject):
     """
     subject_prefix_re = r'^Re\[(\d*)\]:\ '
     m = re.match(subject_prefix_re, subject, re.U)
-    prefix = u""
+    prefix = ""
     if subject.startswith('Re: '):
-        prefix = u"[2]"
+        prefix = "[2]"
         subject = subject[4:]
     elif m is not None:
         try:
             num = int(m.group(1))
-            prefix = u"[%d]" % (num+1)
+            prefix = "[%d]" % (num+1)
             subject = subject[6+len(str(num)):]
         except:
             # if anything fails here, fall back to the old mechanism
             pass
         
-    return ugettext(u"Re%(prefix)s: %(subject)s") % {
+    return ugettext("Re%(prefix)s: %(subject)s") % {
         'subject': subject, 
         'prefix': prefix
     }
     
 def new_message_email(sender, instance, signal, 
-        subject_prefix=_(u'New Message: %(subject)s'),
+        subject_prefix=_('New Message: %(subject)s'),
         template_name="django_messages/new_message.html",
         default_protocol=None,
         *args, **kwargs):
@@ -82,5 +82,5 @@ def new_message_email(sender, instance, signal,
             if instance.recipient.email != "":
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
                     [instance.recipient.email,])
-        except Exception, e:
+        except Exception as e:
             pass #fail silently

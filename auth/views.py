@@ -93,7 +93,7 @@ class Auth(View):
                 login(request, usuario)
                 #"User is not valid, active and authenticated"
                 if not user.is_active:
-                    self.mensaje = u"La contraseña es válida pero la cuenta ha sido desactivada"
+                    self.mensaje = "La contraseña es válida pero la cuenta ha sido desactivada"
                     (self.tipo_mensaje, self.expresion) = msj_expresion('error')
                     return renderizar_plantilla(request, 
                                         plantilla = self.template, 
@@ -107,7 +107,7 @@ class Auth(View):
                     return HttpResponseRedirect('/preguntas_secretas/')
             else:
                 # El usuario o contraseña eran incorrectos
-                self.mensaje = u"Contraseña incorrecta. Por favor, inténtelo nuevamente"
+                self.mensaje = "Contraseña incorrecta. Por favor, inténtelo nuevamente"
                 (self.tipo_mensaje, self.expresion) = msj_expresion('error')
                 return renderizar_plantilla(request, 
                                     plantilla = self.template, 
@@ -118,7 +118,7 @@ class Auth(View):
                                 )
         else:
             # El usuario no existe
-            self.mensaje = u"No existe el usuario %s. Por favor, confirme sus datos" %(request.POST['username'])
+            self.mensaje = "No existe el usuario %s. Por favor, confirme sus datos" %(request.POST['username'])
             (self.tipo_mensaje, self.expresion) = msj_expresion('error')
             form = self.form(request.POST)
             return renderizar_plantilla(request, 
@@ -143,7 +143,7 @@ class Revisar_preguntas(View):
         if request.user.is_authenticated():
             if not request.user.preguntassecretas_set.get_query_set().exists():
                 form = self.form()
-                self.mensaje = u'Para su mayor seguridad debe proporcionar algunas preguntas y respuestas secretas'
+                self.mensaje = 'Para su mayor seguridad debe proporcionar algunas preguntas y respuestas secretas'
                 (self.tipo_mensaje, self.expresion) = msj_expresion('alert')
                 return renderizar_plantilla(request, 
                                     plantilla = self.template, 
@@ -178,7 +178,7 @@ class Revisar_preguntas(View):
                     PreguntasSecretas.objects.create(usuario=usuario, pregunta=pregunta, respuesta=respuesta)
                 else:
                     (self.tipo_mensaje, self.expresion) = msj_expresion('error')
-                    self.mensaje = u'Al parecer la pregunta "%s" ya la has elegido más de una vez.' %(pregunta)
+                    self.mensaje = 'Al parecer la pregunta "%s" ya la has elegido más de una vez.' %(pregunta)
                     error=True
 
             if not error:
@@ -232,8 +232,8 @@ def revisar_comentario(request):
                                                 )
 
         # Enviar correo a los administradores del sistema
-        asunto = u"Pregunta nueva"
-        contenido = u'Tiene un comentario de %s preguntando "%s" con el siguiente mensaje: %s. \n\nTambién puede visitar el mensaje en %s/admin/reportes/comentarios/%s' %(comentario.correo, comentario.pregunta, comentario.comentario, Site.objects.get_current(), comentario.id)
+        asunto = "Pregunta nueva"
+        contenido = 'Tiene un comentario de %s preguntando "%s" con el siguiente mensaje: %s. \n\nTambién puede visitar el mensaje en %s/admin/reportes/comentarios/%s' %(comentario.correo, comentario.pregunta, comentario.comentario, Site.objects.get_current(), comentario.id)
         enviar_email(asunto=asunto, contenido=contenido, correos=correos)
 
         # Se crea una respuesta tentativa

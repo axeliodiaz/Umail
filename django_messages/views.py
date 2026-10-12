@@ -39,7 +39,7 @@ def anular(request, message_id):
         estado = EstadoMemo.objects.get(nombre='Anulado')
         mensaje.status = estado
         mensaje.save()
-        return por_aprobar(request, mensaje=u'Memorándum anulado exitosamente')
+        return por_aprobar(request, mensaje='Memorándum anulado exitosamente')
     else:
         raise Http404
 anular = login_required(anular, login_url='/auth')
@@ -52,7 +52,7 @@ def aprobar(request, message_id):
         estado = EstadoMemo.objects.get(nombre='Aprobado')
         mensaje.status = estado
         mensaje.save()
-        return por_aprobar(request, mensaje=u'Memorándum aprobado exitosamente')
+        return por_aprobar(request, mensaje='Memorándum aprobado exitosamente')
     else:
         raise Http404
 aprobar = login_required(aprobar, login_url='/auth')
@@ -73,7 +73,7 @@ def por_aprobar(request, mensaje=''):
                                                         sender__usuarios__persona__cargo_principal__dependencia=dependencia)| 
                                               models.Q(sender__usuarios__persona__cargos_autorizados__dependencia=dependencia))
         if not message_list.exists():
-            mensaje = u'No tiene ningún mensaje por aprobar hasta ahora'
+            mensaje = 'No tiene ningún mensaje por aprobar hasta ahora'
         return render_to_response('user/mensajes/bandeja.html', {
             'message_list': message_list,
             'loggeado': request.user.is_authenticated,
@@ -127,10 +127,10 @@ def bandeja(request, tipo_bandeja='', expresion='', tipo_mensaje='', mensaje='')
             now = datetime.datetime.now()
 
             # Revisar si hay POST con archivar
-            if request.POST.has_key('archivar'):
+            if 'archivar' in request.POST:
                 lista = request.POST.getlist('seleccion')
                 if lista.__len__() == 0:
-                    form.errors.update({'mensajes':u'No seleccionó ningún mensaje'})
+                    form.errors.update({'mensajes':'No seleccionó ningún mensaje'})
                     tipo_mensaje = 'error'
                     mensaje = form.errors['mensajes']
                 else:
@@ -201,7 +201,7 @@ def bandeja(request, tipo_bandeja='', expresion='', tipo_mensaje='', mensaje='')
             if not request.user.profile.persona.cargo_principal.cargo == request.user.profile.persona.cargo_principal.dependencia.cargo_max:
                 message_list = message_list.filter(status__nombre__iexact='Aprobado')
 
-        if request.POST.has_key('filtro'):
+        if 'filtro' in request.POST:
             filtro = request.POST['filtro']
             if not filtro == '':
                 message_list = Message.objects.filter(deleted_at__isnull=True).distinct()
@@ -225,14 +225,14 @@ def bandeja(request, tipo_bandeja='', expresion='', tipo_mensaje='', mensaje='')
 
         message_list = message_list.order_by('codigo','con_copia').distinct('codigo')
         if not message_list.exists() and mensaje == '':
-            if request.POST.has_key('filtro'):
-                mensaje = u'No se consiguió ningún mensaje'
+            if 'filtro' in request.POST:
+                mensaje = 'No se consiguió ningún mensaje'
             else:
-                mensaje = u'No tiene ningún mensaje hasta ahora'
+                mensaje = 'No tiene ningún mensaje hasta ahora'
             (tipo_mensaje, expresion) = msj_expresion('info')
         
         # Revisar si hay algún orden
-        if request.GET.has_key('ver'):
+        if 'ver' in request.GET:
             opcion = request.GET['ver']
             if opcion == 'leido':
                 # Excluir los que no están sin leer
@@ -293,7 +293,7 @@ def outbox(request, mensaje='', template_name='usuario/mensajes/bandejas.html'):
         # If page is out of range (e.g. 9999), deliver last page of results.
         message_list = paginador.page(paginator.num_pages)
     if not mensajes.exists():
-        mensaje = u'No tiene ningún mensaje hasta ahora'
+        mensaje = 'No tiene ningún mensaje hasta ahora'
     return render_to_response(template_name, {
         'request':request,
         'mensaje':mensaje,
@@ -323,7 +323,7 @@ def trash(request, template_name='user/mensajes/bandeja.html', mensaje=''):
         # If page is out of range (e.g. 9999), deliver last page of results.
         message_list = paginador.page(paginator.num_pages)
     if not mensajes.exists():
-        mensaje = u'No tiene ningún mensaje hasta ahora'
+        mensaje = 'No tiene ningún mensaje hasta ahora'
     return render_to_response(template_name, {
         'message_list': message_list,
         'mensaje':mensaje,
@@ -347,7 +347,7 @@ def compose(request, message_id=None,
     form_errors = ''
 
     (tipo_mensaje, expresion) = msj_expresion('alert')
-    mensaje = u'El mensaje será guardado como borrador automáticamente cada 5 minutos'
+    mensaje = 'El mensaje será guardado como borrador automáticamente cada 5 minutos'
     message = None
     if request.method == "POST":
         form = ComposeForm(request.POST)
@@ -357,13 +357,13 @@ def compose(request, message_id=None,
         # Revisar si hay quien apruebe en el departamento del redactor
         jefe = Destinatarios.objects.filter(usuarios__user__userprofile__persona__cargo_principal__dependencia = request.user.profile.persona.cargo_principal.dependencia, usuarios__user__userprofile__persona__cargo_principal__cargo = request.user.profile.persona.cargo_principal.dependencia.cargo_max)
         if not jefe.exists():
-            mensaje = u'Este memo no puede ser enviado ni aprobado porque no existe un jefe de departamento en %s' %(request.user.profile.persona.cargo_principal.dependencia)
+            mensaje = 'Este memo no puede ser enviado ni aprobado porque no existe un jefe de departamento en %s' %(request.user.profile.persona.cargo_principal.dependencia)
             valido = False
         else:
             jefe = jefe[0]
 
         if valido:
-            if request.POST.has_key('recipient'):
+            if 'recipient' in request.POST:
                 destinatarios = form.cleaned_data['recipient']
                 destinos = []
                 for dest in destinatarios:
@@ -378,12 +378,12 @@ def compose(request, message_id=None,
             else:
                 destinatarios = None
 
-            if request.POST.has_key('con_copia'):
+            if 'con_copia' in request.POST:
                 con_copia = form.cleaned_data['con_copia']
             else:
                 con_copia = None
 
-            if request.POST.has_key('archivo'):
+            if 'archivo' in request.POST:
                 archivo = request.POST['archivo']
             else:
                 archivo = None
@@ -394,21 +394,21 @@ def compose(request, message_id=None,
             borrador = False
             enviar = False
             plantilla = False
-            if request.POST.has_key('borrador'):
+            if 'borrador' in request.POST:
                 borrador = True
-            if request.POST.has_key('enviar'):
+            if 'enviar' in request.POST:
                 enviar = True
-            if request.POST.has_key('plantilla'):
+            if 'plantilla' in request.POST:
                 plantilla = True
 
             if enviar:
-                mensaje = u'Mensaje enviado exitosamente'
+                mensaje = 'Mensaje enviado exitosamente'
             elif borrador:
-                mensaje = u'Borrador guardado exitosamente'
+                mensaje = 'Borrador guardado exitosamente'
 
             elif plantilla:
-                print "Aún no programado"
-                mensaje = u'Plantilla guardada exitosamente'
+                print("Aún no programado")
+                mensaje = 'Plantilla guardada exitosamente'
 
             # Por cada destinatario, enviar el memo, generar un log y enviar correo si está en la opción de envío
             if message_id:
@@ -549,24 +549,24 @@ def compose(request, message_id=None,
             
             if success_url is None:
                 success_url = reverse('messages_inbox')
-            if request.GET.has_key('next'):
+            if 'next' in request.GET:
                 success_url = request.GET['next']
 
         form.body = request.POST['body']
         if form.errors or not valido:
             (tipo_mensaje, expresion) = msj_expresion('error')
             label = ""
-            if form.errors.keys()[0] == 'subject':
+            if list(form.errors.keys())[0] == 'subject':
                 label = "Asunto"
-            elif form.errors.keys()[0] == 'recipient':
+            elif list(form.errors.keys())[0] == 'recipient':
                 label = "Destinatarios"
-            elif form.errors.keys()[0] == 'body':
+            elif list(form.errors.keys())[0] == 'body':
                 label = "Texto"
 
             if not label == "":
-                mensaje =  label + ': ' + form.errors.values()[0][0]
+                mensaje =  label + ': ' + list(form.errors.values())[0][0]
 
-            if form.errors.has_key('__all__'):
+            if '__all__' in form.errors:
                 mensaje = form.errors['__all__'].as_text().split('* ')[1]
 
         if form.errors or not valido:
@@ -580,7 +580,7 @@ def compose(request, message_id=None,
                 'form': form,
             }, context_instance=RequestContext(request))
 
-        elif request.POST.has_key('borrador'):
+        elif 'borrador' in request.POST:
             return HttpResponseRedirect('/redactar/%s/' %(message.id))
 
         return bandeja(request, tipo_bandeja='enviados', expresion=expresion, tipo_mensaje=tipo_mensaje, mensaje=mensaje)
@@ -590,7 +590,7 @@ def compose(request, message_id=None,
             message = Message.objects.get(id=message_id)
             if message.status.nombre == 'Aprobado':
                 (tipo_mensaje, expresion) = msj_expresion('error')
-                mensaje = u'Ese mensaje ya ha sido aprobado. No puede ser editado'
+                mensaje = 'Ese mensaje ya ha sido aprobado. No puede ser editado'
                 return bandeja(request, tipo_bandeja='enviados', expresion=expresion, tipo_mensaje=tipo_mensaje, mensaje=mensaje)
             messages = Message.objects.filter(codigo=message.codigo)
             messages_cc = messages.filter(con_copia=True)
@@ -612,8 +612,8 @@ def compose(request, message_id=None,
             form.fields['archivo'].initial = message.archivo
                 
         else:
-            persona = u"%s.</br /> %s de %s" %(request.user.profile.persona, request.user.profile.persona.cargo_principal.cargo, request.user.profile.persona.cargo_principal.dependencia)
-            form.fields['body'].initial = u"<br /><br />Sin otro particular al cual hacer referencia, se despide. </br /></br /><b>Atentamente,</br /> %s</b>" %(persona.upper())
+            persona = "%s.</br /> %s de %s" %(request.user.profile.persona, request.user.profile.persona.cargo_principal.cargo, request.user.profile.persona.cargo_principal.dependencia)
+            form.fields['body'].initial = "<br /><br />Sin otro particular al cual hacer referencia, se despide. </br /></br /><b>Atentamente,</br /> %s</b>" %(persona.upper())
     return render_to_response(template_name, {
         'tipo': 'Redactar',
         'tipo_mensaje':tipo_mensaje,
@@ -663,7 +663,7 @@ def crear_mensaje(destino='',
                 )
     return mensaje
 
-    mensaje_txt = u'Mensaje enviado exitosamente'
+    mensaje_txt = 'Mensaje enviado exitosamente'
     # Guardar log de envío de memo
     LogEntry.objects.create(
         user_id         = envio.usuarios.user.pk, 
@@ -736,7 +736,7 @@ def reply(request, message_id, form_class=ComposeForm,
                 if sender.exists():
                     mensaje.recipient.add(sender[0])
             mensaje.save()
-            mensaje_txt = u"Mensaje enviado exitosamente."
+            mensaje_txt = "Mensaje enviado exitosamente."
 
             # Guardar log de envío de memo
             LogEntry.objects.create(
@@ -752,13 +752,13 @@ def reply(request, message_id, form_class=ComposeForm,
                     
             return inbox(request, mensaje)
     else:
-        cuerpo = u"\n\n%s escribió:\n%s" %(parent.sender, parent.body)
+        cuerpo = "\n\n%s escribió:\n%s" %(parent.sender, parent.body)
         recipient = parent.recipient.add(parent.sender)
         destins = []
         for recip in parent.recipient.get_query_set():
             destins.append(recip.id)
         form = form_class(initial={
-            'subject': _(u"Re: %(subject)s") % {'subject': parent.subject},
+            'subject': _("Re: %(subject)s") % {'subject': parent.subject},
             'body': cuerpo,
             'recipient': destins
             })
@@ -788,7 +788,7 @@ def delete(request, message_id, success_url=None):
     notify = False
     if success_url is None:
         success_url = reverse('messages_inbox')
-    if request.GET.has_key('next'):
+    if 'next' in request.GET:
         success_url = request.GET['next']
     if message.sender.usuarios.user == user:
         message.sender_deleted_at = now
@@ -805,7 +805,7 @@ def delete(request, message_id, success_url=None):
     if deleted:
         if message.status == 'En espera':
             message.save()
-            mensaje_txt = u"Mensaje archivado exitosamente."
+            mensaje_txt = "Mensaje archivado exitosamente."
 
             # Guardar log de memo archivado
             LogEntry.objects.create(
@@ -818,7 +818,7 @@ def delete(request, message_id, success_url=None):
             )
             mensaje = mensaje_txt
         else:
-            mensaje = u'Un mensaje que está en espera de ser aprobado no puede ser archivado aún.'
+            mensaje = 'Un mensaje que está en espera de ser aprobado no puede ser archivado aún.'
         notify = True
         if notification:
             notification.send([user], "messages_deleted", {'message': message,})
@@ -836,7 +836,7 @@ def undelete(request, success_url=None):
     undeleted = False
     if success_url is None:
         success_url = reverse('messages_inbox')
-    if request.GET.has_key('next'):
+    if 'next' in request.GET:
         success_url = request.GET['next']
     if message.sender == user:
         message.sender_deleted_at = None
@@ -846,7 +846,7 @@ def undelete(request, success_url=None):
         undeleted = True
     if undeleted:
         message.save()
-        messages.info(request, _(u"Message successfully recovered."))
+        messages.info(request, _("Message successfully recovered."))
         if notification:
             notification.send([user], "messages_recovered", {'message': message,})
         return HttpResponseRedirect(success_url)
@@ -894,7 +894,7 @@ def view(request, message_id, template_name='usuario/mensajes/leer.html', mensaj
             
             mensaje=message
             mensaje.save()
-            mensaje_txt = u"Mensaje nuevo leído."
+            mensaje_txt = "Mensaje nuevo leído."
 
             # Guardar log de memo archivado
             LogEntry.objects.create(
@@ -919,13 +919,13 @@ def destin_atarios_lookup(request):
     # Default return list
     results = []
     if request.method == "GET":
-        if request.GET.has_key(u'query'):
-            value = request.GET[u'query']
+        if 'query' in request.GET:
+            value = request.GET['query']
             # Ignore queries shorter than length 3
             if len(value) > 2:
                 model_results = Message.objects.filter(subject__istartswith=value)
                 results = [ x.subject for x in model_results ]
-                print results
+                print(results)
     json = simplejson.dumps(results)
     return HttpResponse(json, mimetype='application/json')
 

@@ -38,7 +38,7 @@ def revisar_fechas(fecha_inicio, fecha_fin):
     valido = True
     mensaje = ''
     if fecha_inicio > fecha_fin:
-        mensaje = u'La fecha de inicio no puede ser mayor a la fecha final. Por favor corrija este error.'
+        mensaje = 'La fecha de inicio no puede ser mayor a la fecha final. Por favor corrija este error.'
         valido = False
     return valido, mensaje
 
@@ -85,7 +85,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
                     sender = resultado_memo.sender
                     destinos = resultado_memo.recipient
                     if destinos == None:
-                        mensaje = u"Ese memorándum no tiene todavía un destinatario."
+                        mensaje = "Ese memorándum no tiene todavía un destinatario."
                         (tipo_mensaje, expresion) = msj_expresion('error')
                     else:
                         memo = resultado_memo
@@ -162,7 +162,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
             # Si no hay ningún mensaje en ese rango de fechas
             memos = lista_mensajes
             if not lista_mensajes.exists():
-                mensaje = u'No existe ningún memorándum entre las fechas seleccionadas.'
+                mensaje = 'No existe ningún memorándum entre las fechas seleccionadas.'
                 c.update({'mensaje':mensaje})
                 c.update({'libro_memo':libro_memo})
             else:
@@ -184,8 +184,8 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
                 c.update({'lista_mensajes':lista_mensajes}) # pasamos la misma variable de memos pero para traernosla de vuelta en el hidden para sacar el PDF
             return render_to_response(template_name, c)
         else:
-            if not request.POST.has_key('opcion') and not request.POST.has_key('codigo'):
-                mensaje = u'Debe elegir un tipo de libro de memos.'
+            if 'opcion' not in request.POST and 'codigo' not in request.POST:
+                mensaje = 'Debe elegir un tipo de libro de memos.'
                 c.update({'tipo_mensaje':tipo_mensaje})
                 c.update({'mensaje':mensaje})
                 c.update({'expresion':expresion})
@@ -193,7 +193,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
                 c.update({'libro_memo':libro_memo})
                 c.update({'consulta_memo':consulta_memo})
                 return render_to_response(template_name, c)
-        if request.POST.has_key('lista_mensajes'):
+        if 'lista_mensajes' in request.POST:
             memos = request.POST['lista_mensajes']
             opcion = request.POST['opcion']
             memos = memos.split(',')
@@ -273,7 +273,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
             elementos.append(Spacer(1,75))
 
             #Titulo del reporte
-            txtTitulo = u'LIBRO DE MEMORÁNDUM %s%s' %(opcion.upper(), str(salto)*2)
+            txtTitulo = 'LIBRO DE MEMORÁNDUM %s%s' %(opcion.upper(), str(salto)*2)
             titulo = style['Heading1']
             titulo.fontSize = 9
             titulo.fontName = 'Helvetica-Bold'
@@ -284,7 +284,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
             #Periodo
             elementos.append(Spacer(1,-15))# Quitandole espacio al periodo para subirlo un poco mas
             #txtPeriodo = u'%s hasta %s'%(memos[0].sent_at, memos[memos.count()-1].sent_at)
-            txtPeriodo = u'Lista de memorándum desde %s/%s/%s hasta %s/%s/%s'%(memos[0].sent_at.day, memos[0].sent_at.month, memos[0].sent_at.year, memos[memos.count()-1].sent_at.day, memos[memos.count()-1].sent_at.month, memos[memos.count()-1].sent_at.year)
+            txtPeriodo = 'Lista de memorándum desde %s/%s/%s hasta %s/%s/%s'%(memos[0].sent_at.day, memos[0].sent_at.month, memos[0].sent_at.year, memos[memos.count()-1].sent_at.day, memos[memos.count()-1].sent_at.month, memos[memos.count()-1].sent_at.year)
             periodo = Paragraph(txtPeriodo, styleF)
             elementos.append(periodo)
 
@@ -294,7 +294,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
             for memo in memos:
                 num += 1
                 jefe = jefe_dep(request)
-                tabla.append([num, '%s \n(%s)' %(memo.sender.usuarios.persona.__unicode__(), memo.sender.usuarios.persona.cargo_principal.dependencia.departamento), '%s \n(%s)' %(jefe.usuarios.persona.__unicode__(), jefe.usuarios.persona.cargo_principal.dependencia.departamento), '%s \n(%s)' %(memo.recipient.usuarios.persona.__unicode__(), memo.recipient.usuarios.persona.cargo_principal.dependencia.departamento), u'%s/%s/%s' %(memo.sent_at.day, memo.sent_at.month, memo.sent_at.year), memo.subject])
+                tabla.append([num, '%s \n(%s)' %(memo.sender.usuarios.persona.__unicode__(), memo.sender.usuarios.persona.cargo_principal.dependencia.departamento), '%s \n(%s)' %(jefe.usuarios.persona.__unicode__(), jefe.usuarios.persona.cargo_principal.dependencia.departamento), '%s \n(%s)' %(memo.recipient.usuarios.persona.__unicode__(), memo.recipient.usuarios.persona.cargo_principal.dependencia.departamento), '%s/%s/%s' %(memo.sent_at.day, memo.sent_at.month, memo.sent_at.year), memo.subject])
 
                 t1 = Table(tabla, colWidths=('', '', '', '', '', ''))
                 t1.setStyle(TableStyle(x))
@@ -318,7 +318,7 @@ PAGE_WIDTH=21*cm
 def libro_memos(request, memos):
     ''' Función para descarga de memorándums en PDF '''
     response = HttpResponse(mimetype='application/pdf')
-    response['Content-Disposition'] = u'attachment; filename=Memorándum.pdf; pagesize=A4'
+    response['Content-Disposition'] = 'attachment; filename=Memorándum.pdf; pagesize=A4'
 
     elementos = []
     doc = SimpleDocTemplate(response)    
@@ -347,7 +347,7 @@ def libro_memos(request, memos):
     from django_messages.models import Message
     # memo = Message.objects.filter(id=memos)
 
-    txtTitulo = u'MEMORÁNDUM%s' %(salto)
+    txtTitulo = 'MEMORÁNDUM%s' %(salto)
     titulo = style['Heading1']
     titulo.fontSize = 12
     titulo.fontName = 'Helvetica-Bold'
@@ -375,7 +375,7 @@ def libro_memos(request, memos):
 def memo(request, message_id):
     ''' Función para descarga de memorándums en PDF '''
     response = HttpResponse(mimetype='application/pdf')
-    response['Content-Disposition'] = u'attachment; filename=Memorándum.pdf; pagesize=A4'
+    response['Content-Disposition'] = 'attachment; filename=Memorándum.pdf; pagesize=A4'
 
     elementos = []
     doc = SimpleDocTemplate(response)    
@@ -404,7 +404,7 @@ def memo(request, message_id):
     from django_messages.models import Message
     memo = Message.objects.get(id=message_id)
 
-    txtTitulo = u'MEMORÁNDUM%s' %(salto)
+    txtTitulo = 'MEMORÁNDUM%s' %(salto)
     if memo.tipo == 'Circular':
         txtTitulo = 'MEMORÁNDUM CIRCULAR'
     titulo = style['Heading1']
@@ -427,16 +427,16 @@ def memo(request, message_id):
 
     identificador = '%s.%s.%s - %d %s' %(memo.sender.usuarios.persona.cargo_principal.dependencia.dependencia.nivel, memo.sender.usuarios.persona.cargo_principal.dependencia.nivel, memo.sender.usuarios.persona.cargo_principal.dependencia.siglas, memo.id, salto)
 
-    de = u'<b>DE: </b> %s %s' %(memo.sender, salto)
+    de = '<b>DE: </b> %s %s' %(memo.sender, salto)
 
     para = '' 
     memos = Message.objects.filter(codigo=memo.codigo)
     for memorandums in  memos:
-        para = u'%s, %s' %(memorandums.recipient, para)
+        para = '%s, %s' %(memorandums.recipient, para)
 
-    para = u'<b>PARA: </b> %s %s' %(para, salto)
+    para = '<b>PARA: </b> %s %s' %(para, salto)
 
-    para = u'<b>ASUNTO: </b> %s %s' %(para, salto)
+    para = '<b>ASUNTO: </b> %s %s' %(para, salto)
 
     memo_mes = fecha.NormalDate(memo.sent_at).monthName()
     memo_dia = fecha.NormalDate(memo.sent_at).dayOfWeekName()
@@ -466,7 +466,7 @@ def memo(request, message_id):
     parrafo.spaceBefore = 5
     parrafo.firstLineIndent = 20
 
-    Parrafo1 = Paragraph(u'%s'%(texto), parrafo)
+    Parrafo1 = Paragraph('%s'%(texto), parrafo)
     elementos.append(Parrafo1)
     elementos.append(Spacer(3,30))
 
@@ -491,9 +491,9 @@ def encabezado_constancia(canvas, doc):
     canvas.saveState()
     canvas.drawImage(settings.STATIC_ROOT+'images/institucion.jpg', 2.0*cm, PAGE_HEIGHT-4.5*cm, width = 100, height = 38)
     canvas.setFont("Helvetica-Bold",10)
-    canvas.drawCentredString(PAGE_WIDTH-9.5*cm, PAGE_HEIGHT-3.6*cm, u'REPÚBLICA BOLIVARIANA DE VENEZUELA')
-    canvas.drawCentredString(PAGE_WIDTH-9.5*cm, PAGE_HEIGHT-4.0*cm, u'MINISTERIO DEL PODER POPULAR PARA LA EDUCACIÓN SUPERIOR')
-    canvas.drawCentredString(PAGE_WIDTH-9.5*cm, PAGE_HEIGHT-4.4*cm, u'UNIVERSIDAD NACIONAL EXPERIMENTAL RÓMULO GALLEGOS')
+    canvas.drawCentredString(PAGE_WIDTH-9.5*cm, PAGE_HEIGHT-3.6*cm, 'REPÚBLICA BOLIVARIANA DE VENEZUELA')
+    canvas.drawCentredString(PAGE_WIDTH-9.5*cm, PAGE_HEIGHT-4.0*cm, 'MINISTERIO DEL PODER POPULAR PARA LA EDUCACIÓN SUPERIOR')
+    canvas.drawCentredString(PAGE_WIDTH-9.5*cm, PAGE_HEIGHT-4.4*cm, 'UNIVERSIDAD NACIONAL EXPERIMENTAL RÓMULO GALLEGOS')
     canvas.restoreState()
     canvas.saveState()
 
@@ -519,7 +519,7 @@ class NumeroDePagina(canvas.Canvas):
         fechas = datetime.datetime.today()
         self.setFont("Helvetica-Bold", 6)
         self.drawRightString(129*mm, 6*mm,
-            u"%02d/%02d/%d   %02d:%02d:%02d    Página %d de %d" % (fechas.day,fechas.month,fechas.year, fechas.hour, fechas.minute, fechas.second, self._pageNumber, page_count))
+            "%02d/%02d/%d   %02d:%02d:%02d    Página %d de %d" % (fechas.day,fechas.month,fechas.year, fechas.hour, fechas.minute, fechas.second, self._pageNumber, page_count))
 
 class pieDePaginaConstancias(canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -542,7 +542,7 @@ class pieDePaginaConstancias(canvas.Canvas):
         fechas = datetime.datetime.today()
         self.setFont("Helvetica-Bold", 6)
         self.drawRightString(129*mm, 6*mm,
-            u"%02d/%02d/%d   %02d:%02d:%02d    Página %d de %d" % (fechas.day,fechas.month,fechas.year, fechas.hour, fechas.minute, fechas.second, self._pageNumber, page_count))
+            "%02d/%02d/%d   %02d:%02d:%02d    Página %d de %d" % (fechas.day,fechas.month,fechas.year, fechas.hour, fechas.minute, fechas.second, self._pageNumber, page_count))
 
 def firma_actasIntegrales(canvas, doc):
     ##########-------------------- Pie de Pagina del reporte ###########

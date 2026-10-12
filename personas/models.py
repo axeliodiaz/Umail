@@ -6,24 +6,24 @@ from django.db.models.signals import post_save
 
 # Modelo para aplicación de personas
 class Personas(models.Model):
-    tipodoc                 = models.CharField(choices=(('c','Cédula'),('p','Pasaporte')),default=0,max_length=1, verbose_name=u'Tipo de Identificación')
-    num_identificacion      = models.CharField(max_length=50,unique=True,verbose_name=u'Número de Identificación')
+    tipodoc                 = models.CharField(choices=(('c','Cédula'),('p','Pasaporte')),default=0,max_length=1, verbose_name='Tipo de Identificación')
+    num_identificacion      = models.CharField(max_length=50,unique=True,verbose_name='Número de Identificación')
     primer_apellido         = models.CharField(max_length=100)
     segundo_apellido        = models.CharField(max_length=100,blank=True)
     primer_nombre           = models.CharField(max_length=100)
     segundo_nombre          = models.CharField(max_length=100,blank=True)
-    genero                  = models.IntegerField(choices=((0,'Masculino'),(1,'Femenino')),default=0,verbose_name=u'género')
+    genero                  = models.IntegerField(choices=((0,'Masculino'),(1,'Femenino')),default=0,verbose_name='género')
     email                   = models.EmailField()
-    telefono                = models.CharField(max_length=15, null=True, blank=True, verbose_name=u'teléfono', help_text=u'Por favor, incluya el código de telefonía o área.')
-    cargo_principal         = models.ForeignKey('Personal',related_name=u'cargo_principal')
-    cargos_autorizados      = models.ManyToManyField('Personal', null=True, blank=True, default=None, related_name=u'cargos_autorizados')
+    telefono                = models.CharField(max_length=15, null=True, blank=True, verbose_name='teléfono', help_text='Por favor, incluya el código de telefonía o área.')
+    cargo_principal         = models.ForeignKey('Personal',related_name='cargo_principal')
+    cargos_autorizados      = models.ManyToManyField('Personal', null=True, blank=True, default=None, related_name='cargos_autorizados')
     class Meta:
-        db_table            = u'personas'
-        verbose_name_plural = u'personas'
-    def __unicode__(self):
-        return u'%s %s'%(self.primer_nombre,self.primer_apellido)
+        db_table            = 'personas'
+        verbose_name_plural = 'personas'
+    def __str__(self):
+        return '%s %s'%(self.primer_nombre,self.primer_apellido)
     def natural_key(self):
-        return u'%s %s'%(self.primer_nombre,self.primer_apellido)
+        return '%s %s'%(self.primer_nombre,self.primer_apellido)
 
 @receiver(post_save, sender=Personas)
 def save_pers_user(sender, **kwargs):
@@ -61,19 +61,19 @@ class Personal(models.Model):
     from auth.models import Group
     tipo_personal           = models.ForeignKey('TipoPersonal')
     dependencia             = models.ForeignKey(Dependencias)
-    cargo                   = models.ForeignKey(Group,related_name=u'cargo_principal')
+    cargo                   = models.ForeignKey(Group,related_name='cargo_principal')
     class Meta:
-        db_table = u'personal'
+        db_table = 'personal'
         verbose_name_plural = 'personal'
-    def __unicode__(self):
-        return u'%s de %s' %(self.cargo, self.dependencia)
+    def __str__(self):
+        return '%s de %s' %(self.cargo, self.dependencia)
 
 
 class TipoPersonal(models.Model):
     nombre                  = models.CharField(max_length=50)
     class Meta:
-        db_table            = u'tipo_personal'
-        verbose_name_plural = u'tipos de personal'
-        verbose_name        = u'tipo de personal'
-    def __unicode__(self):
+        db_table            = 'tipo_personal'
+        verbose_name_plural = 'tipos de personal'
+        verbose_name        = 'tipo de personal'
+    def __str__(self):
         return '%s' %(self.nombre)

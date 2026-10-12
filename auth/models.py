@@ -30,17 +30,17 @@ class Group(models.Model):
         verbose_name = _('group')
         verbose_name_plural = _('groups')
 
-    def __unicode__(self):
-        return u'%s' %(self.name)
+    def __str__(self):
+        return '%s' %(self.name)
 
     def natural_key(self):
         return (self.name,)
 
 class Pregunta(models.Model):
-    opcion = models.CharField(max_length=50, verbose_name=u'opción')
+    opcion = models.CharField(max_length=50, verbose_name='opción')
 
-    def __unicode__(self):
-        return u'%s' %(self.opcion)
+    def __str__(self):
+        return '%s' %(self.opcion)
 
 class PreguntasSecretas(models.Model):
     pregunta = models.ForeignKey('Pregunta')
@@ -49,24 +49,24 @@ class PreguntasSecretas(models.Model):
     class Meta:
         verbose_name = 'Pregunta secreta'
         verbose_name_plural = 'Preguntas secretas'
-    def __unicode__(self):
-        return u'%s' %(self.pregunta)
+    def __str__(self):
+        return '%s' %(self.pregunta)
 
 class UserProfile(models.Model):
     from personas.models import Personas
     user=models.ForeignKey(User)
-    persona=models.OneToOneField(Personas,null=False,help_text=u'Por favor, ingrese nombre, apellido o cédula de la persona')
-    notificaciones=models.BooleanField(default=False,help_text=u'Active esta casilla si desea el envío de notificaciones a su correo electrónico')
+    persona=models.OneToOneField(Personas,null=False,help_text='Por favor, ingrese nombre, apellido o cédula de la persona')
+    notificaciones=models.BooleanField(default=False,help_text='Active esta casilla si desea el envío de notificaciones a su correo electrónico')
 
     class Meta:
         verbose_name='Usuario'
         unique_together=('user','persona')
 
-    def __unicode__(self):
-        return u'%s %s' %(self.persona.primer_nombre, self.persona.primer_apellido)
+    def __str__(self):
+        return '%s %s' %(self.persona.primer_nombre, self.persona.primer_apellido)
 
     def natural_key(self):
-        return u'%s (%s)' %(self.persona.natural_key(),self.user.__unicode__() )
+        return '%s (%s)' %(self.persona.natural_key(),self.user.__unicode__() )
 
 def funcion(u):
     if not hasattr(u, '_cached_profile'):

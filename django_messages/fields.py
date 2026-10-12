@@ -50,7 +50,7 @@ class CommaSeparatedUserField(forms.Field):
                     invalid_users.append(r.username)
         
         if unknown_names or invalid_users:
-            raise forms.ValidationError(_(u"The following usernames are incorrect: %(users)s") % {'users': ', '.join(list(unknown_names)+invalid_users)})
+            raise forms.ValidationError(_("The following usernames are incorrect: %(users)s") % {'users': ', '.join(list(unknown_names)+invalid_users)})
         
         return users
 

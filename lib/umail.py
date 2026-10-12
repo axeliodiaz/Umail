@@ -8,13 +8,13 @@ def msj_expresion(tipo_mensaje):
     '''
     expresion = ''
     if tipo_mensaje == 'alert':
-        expresion = u'¡Atención! '
+        expresion = '¡Atención! '
     if tipo_mensaje == 'success':
-        expresion = u'¡Genial! '
+        expresion = '¡Genial! '
     if tipo_mensaje == 'error':
-        expresion = u'¡ERROR! '
+        expresion = '¡ERROR! '
     if tipo_mensaje == 'Information':
-        expresion = u'¿Sabías qué? '
+        expresion = '¿Sabías qué? '
     return (tipo_mensaje, expresion)
 
 
@@ -52,4 +52,4 @@ def enviar_email(asunto='', contenido='', correos=[]):
     connection.host = settings.EMAIL_HOST
     connection.port = settings.EMAIL_PORT
     connection.use_tls = settings.EMAIL_USE_TLS
-    send_mail(u'%s %s' %(settings.EMAIL_SUBJECT_PREFIX, asunto), contenido, settings.REMITENTE, correos, connection=connection)
+    send_mail('%s %s' %(settings.EMAIL_SUBJECT_PREFIX, asunto), contenido, settings.REMITENTE, correos, connection=connection)

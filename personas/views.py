@@ -66,7 +66,7 @@ def contactos(request, template_name='usuario/contactos/contactos.html', mensaje
             c.update({'form':form})
             c.update({'opcion':opcion})
             c.update({'lista_destinatarios':lista_destinatarios})
-            print lista_destinatarios.object_list
+            print(lista_destinatarios.object_list)
 
             return render_to_response(template_name, c)
     paginador = Paginator(lista_destinatarios, settings.SUIT_CONFIG['LIST_PER_PAGE'])
@@ -89,7 +89,7 @@ contactos = login_required(contactos)
 class Perfil(View):
     template = 'usuario/perfil/perfil.html'
     form = PerfilForm
-    mensaje = u'Actualiza toda tu información personal para tener siempre tus datos al día'
+    mensaje = 'Actualiza toda tu información personal para tener siempre tus datos al día'
     (tipo_mensaje, expresion) = msj_expresion('info')
 
     def get(self, request, *args, **kwargs):
@@ -132,7 +132,7 @@ class Perfil(View):
             persona.save()
             user_profile.save()
 
-            self.mensaje = u'¡Tus datos han sido actualizados exitosamente!'
+            self.mensaje = '¡Tus datos han sido actualizados exitosamente!'
             self.tipo_mensaje = 'success'
 
         else:
@@ -168,7 +168,7 @@ def password_change(request,
 
     if form.is_valid():
         form.save()
-        mensaje = u'Contraseña %s exitosamente' %(accion)
+        mensaje = 'Contraseña %s exitosamente' %(accion)
         tipo_mensaje = 'success'
     else:
         tipo_mensaje = 'error'
@@ -206,7 +206,7 @@ class Preguntas_Secretas(View):
                 preguntas = PreguntasSecretas.objects.filter(id__in=pregs)
                 form = self.form()
 
-                self.mensaje = u'Para su mayor seguridad debe proporcionar algunas preguntas y respuestas secretas'
+                self.mensaje = 'Para su mayor seguridad debe proporcionar algunas preguntas y respuestas secretas'
                 (self.tipo_mensaje, self.expresion) = msj_expresion('alert')
                 return renderizar_plantilla(request, 
                                     plantilla = self.template, 
@@ -240,13 +240,13 @@ class Preguntas_Secretas(View):
         pregunta_3 = PreguntasSecretas.objects.get(id__iexact=pregunta_3)
 
         if not pregunta_1.respuesta == respuesta_1:
-            self.mensaje = u'%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_1, pregunta_1)
+            self.mensaje = '%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_1, pregunta_1)
             self.tipo_mensaje = 'error'
         elif not pregunta_2.respuesta == respuesta_2:
-            self.mensaje = u'%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_2, pregunta_2)
+            self.mensaje = '%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_2, pregunta_2)
             self.tipo_mensaje = 'error'
         elif not pregunta_3.respuesta == respuesta_3:
-            self.mensaje = u'%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_3, pregunta_3)
+            self.mensaje = '%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_3, pregunta_3)
             self.tipo_mensaje = 'error'
 
         pregs = []

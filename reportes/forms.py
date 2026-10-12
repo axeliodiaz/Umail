@@ -10,7 +10,7 @@ from suit_redactor.widgets import RedactorWidget
 
 class HorizontalRadioRenderer(forms.RadioSelect.renderer):
     def render(self):
-        return mark_safe(u'\n'.join([u'%s\n' % w for w in self]))
+        return mark_safe('\n'.join(['%s\n' % w for w in self]))
 
 OPCIONES = [('entrada', 'Entrada',), ('salida', 'Salida',), ('ambos','Ambos')]
 class LibroMemoForm(forms.Form):

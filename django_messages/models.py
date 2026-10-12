@@ -46,29 +46,29 @@ class Destinatarios(models.Model):
     grupos = models.ForeignKey(Group, unique=True, null=True, blank=True)
     usuarios = models.ForeignKey(UserProfile, unique=True, null=True, blank=True)
     class Meta:
-        db_table            = u'destinatarios'
-        verbose_name_plural = u'destinatarios'
-        verbose_name        = u'destinatario'
+        db_table            = 'destinatarios'
+        verbose_name_plural = 'destinatarios'
+        verbose_name        = 'destinatario'
         ordering            = ['usuarios__persona__primer_nombre','usuarios__persona__primer_apellido','grupos__name']
-    def __unicode__(self):
+    def __str__(self):
         if self.usuarios== None:
-            return u'Grupo: %s'%(self.grupos)
+            return 'Grupo: %s'%(self.grupos)
         elif self.grupos == None:
-            return u'%s (%s de %s)'%(self.usuarios, self.usuarios.persona.cargo_principal.cargo.name, self.usuarios.persona.cargo_principal.dependencia.departamento)
+            return '%s (%s de %s)'%(self.usuarios, self.usuarios.persona.cargo_principal.cargo.name, self.usuarios.persona.cargo_principal.dependencia.departamento)
 
 class EstadoMemo(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     modificable = models.ManyToManyField(Group)
-    def __unicode__(self):
-        return u'%s' %(self.nombre)
+    def __str__(self):
+        return '%s' %(self.nombre)
 
 class Adjunto(models.Model):
     mensaje = models.ForeignKey('Message')
     archivo = models.FileField(upload_to='media/adjuntos/',null=True, blank=True)
     class Meta:
         db_table = 'adjuntos'
-    def __unicode__(self):
-        return u'%s - %s' %(self.mensaje, self.archivo)
+    def __str__(self):
+        return '%s - %s' %(self.mensaje, self.archivo)
 
 class Message(models.Model):
     """
@@ -87,8 +87,8 @@ class Message(models.Model):
     deleted_at = models.DateTimeField(("Archivado a las"), null=True, blank=True)
     status = models.ForeignKey('EstadoMemo', null=True, blank=True, verbose_name='Estado')
     tipo = models.CharField(max_length=10, blank=True, null=True)
-    codigo = models.CharField(blank=True, null=True, verbose_name=u'código', max_length=30)
-    num_ident= models.BigIntegerField(blank=True, null=True, verbose_name=u'número identificador')
+    codigo = models.CharField(blank=True, null=True, verbose_name='código', max_length=30)
+    num_ident= models.BigIntegerField(blank=True, null=True, verbose_name='número identificador')
     borrador = models.BooleanField()
 
     objects = MessageManager()
@@ -112,7 +112,7 @@ class Message(models.Model):
             return True
         return False
     
-    def __unicode__(self):
+    def __str__(self):
         return self.subject
     
     def get_por_aprobar_url(self):
