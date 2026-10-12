@@ -29,7 +29,7 @@ def renderizar_plantilla(request, plantilla, tipo_mensaje='', expresion='', mens
     diccionario.update({'tipo_mensaje': tipo_mensaje, 'expresion': expresion, 'mensaje': mensaje})
 
     # Actualización del CSRF
-    from django.core.context_processors import csrf
+    from django.template.context_processors import csrf
     diccionario.update(csrf(request))
 
     # Actualización del formulario

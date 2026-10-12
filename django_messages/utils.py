@@ -1,6 +1,6 @@
 import re
 from django.utils.text import wrap
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 from django.contrib.sites.models import Site
 from django.template import Context, loader
 from django.template.loader import render_to_string
@@ -23,7 +23,7 @@ def format_quote(sender, body):
     for i, line in enumerate(lines):
         lines[i] = "> %s" % line
     quote = '\n'.join(lines)
-    return ugettext("%(sender)s wrote:\n%(body)s") % {
+    return gettext("%(sender)s wrote:\n%(body)s") % {
         'sender': sender,
         'body': quote
     }
@@ -51,7 +51,7 @@ def format_subject(subject):
             # if anything fails here, fall back to the old mechanism
             pass
         
-    return ugettext("Re%(prefix)s: %(subject)s") % {
+    return gettext("Re%(prefix)s: %(subject)s") % {
         'subject': subject, 
         'prefix': prefix
     }

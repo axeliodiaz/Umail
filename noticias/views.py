@@ -2,8 +2,8 @@
 # Create your views here.
 from noticias.models import *
 from django.contrib.auth.decorators import login_required
-from django.core.context_processors import csrf
-from django.shortcuts import render_to_response
+from django.template.context_processors import csrf
+from django.shortcuts import render
 
 @login_required
 def todas_noticias(request):
@@ -12,8 +12,8 @@ def todas_noticias(request):
     noticias = Noticias.objects.all()
     diccionario.update({'request':request})
     diccionario.update({'noticias':noticias})
-    diccionario.update({'loggeado':request.user.is_authenticated()})
-    return render_to_response('user/noticias/todas.html', diccionario)
+    diccionario.update({'loggeado':request.user.is_authenticated})
+    return render(request, 'user/noticias/todas.html', diccionario)
 
 @login_required
 def detalle_noticia(request, noticia_id):
@@ -22,8 +22,8 @@ def detalle_noticia(request, noticia_id):
     noticias = Noticias.objects.filter(id=noticia_id)
     diccionario.update({'request':request})
     diccionario.update({'noticia_exists':noticias.exists()})
-    diccionario.update({'loggeado':request.user.is_authenticated()})
+    diccionario.update({'loggeado':request.user.is_authenticated})
     if noticias.exists():
         diccionario.update({'noticia':noticias[0]})
-    return render_to_response('user/noticias/especificas.html', diccionario)
+    return render(request, 'user/noticias/especificas.html', diccionario)
 

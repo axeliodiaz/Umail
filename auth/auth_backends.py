@@ -3,14 +3,12 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import get_model
 from sedes.models import Personas
-from django.core.validators import email_re
 
 class UserModelBackend(ModelBackend):
-    def authenticate(self, username=None, password=None):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         #Se introdujo un correo?
-        if email_re.search(username): #Se introdujo un correo?
+        if '@' in str(username): #Se introdujo un correo?
             try:
                 #Evalua si hay una Persona con ese email a través de la relación del perfil de usuario (userprofile)
                 user=User.objects.get(userprofile__persona__email=username)

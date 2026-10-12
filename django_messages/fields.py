@@ -6,7 +6,7 @@ by sopelkin
 from django import forms
 from django.forms import widgets
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class CommaSeparatedUserInput(widgets.Input):
@@ -53,11 +53,3 @@ class CommaSeparatedUserField(forms.Field):
             raise forms.ValidationError(_("The following usernames are incorrect: %(users)s") % {'users': ', '.join(list(unknown_names)+invalid_users)})
         
         return users
-
-
-from django_messages.models import Destinatarios
-from django_select2.fields import AutoModelSelect2MultipleField
-
-class RecipientSelect2MultipleField(AutoModelSelect2MultipleField):
-    queryset = Destinatarios.objects
-    search_fields = ['usuarios__persona__primer_nombre__icontains']

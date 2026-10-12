@@ -2,20 +2,20 @@
 import datetime
 from django.views.generic.base import View
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from lib.umail import msj_expresion, renderizar_plantilla
-from django.utils.translation import ugettext as _
-from django.utils import simplejson
+from django.utils.translation import gettext as _
+import json as simplejson
 from django.http import HttpResponse
-from django.utils.translation import ugettext_noop
+from django.utils.translation import gettext_noop
 from django.db.models import Q
 from django_messages.models import Destinatarios, EstadoMemo
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 from django.db import models
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -66,7 +66,7 @@ def por_aprobar(request, mensaje=''):
     notify = False
     if not mensaje == '':
         notify = True
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         dependencia = request.user.profile.persona.cargo_principal.dependencia
         # Lista de mensajes en espera escritos por la dependencia del jefe de dependencia
         message_list = Message.objects.filter(models.Q( status__nombre__iexact='En espera', 
@@ -74,13 +74,13 @@ def por_aprobar(request, mensaje=''):
                                               models.Q(sender__usuarios__persona__cargos_autorizados__dependencia=dependencia))
         if not message_list.exists():
             mensaje = 'No tiene ningún mensaje por aprobar hasta ahora'
-        return render_to_response('user/mensajes/bandeja.html', {
+        return render(request, 'user/mensajes/bandeja.html', {
             'message_list': message_list,
             'loggeado': request.user.is_authenticated,
             'request':request,
             'mensaje':mensaje,
             'notify':notify,
-        }, context_instance=RequestContext(request))
+        })
     else:
         return HttpResponseRedirect('/')
 
@@ -104,12 +104,12 @@ def ver_por_aprobar(request, message_id, template_name='user/mensajes/leer_aprob
     else:
         raise Http404
 
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'loggeado': request.user.is_authenticated,
         'request':request,
         'message': message,
         'message_list': message_list,
-    }, context_instance=RequestContext(request))
+    })
 ver_por_aprobar = login_required(ver_por_aprobar, login_url='/auth')
 
 def bandeja(request, tipo_bandeja='', expresion='', tipo_mensaje='', mensaje=''):
@@ -121,7 +121,7 @@ def bandeja(request, tipo_bandeja='', expresion='', tipo_mensaje='', mensaje='')
     notify = False
     diccionario = {}
     diccionario.update(csrf(request))
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         if request.method == "POST":
             form = BandejaForm(request.POST)
             now = datetime.datetime.now()
@@ -270,7 +270,7 @@ def bandeja(request, tipo_bandeja='', expresion='', tipo_mensaje='', mensaje='')
         diccionario.update({'tipo_bandeja':tipo_bandeja})
         diccionario.update({'nombre_action':'buscar_memos'})
 
-        return render_to_response('usuario/mensajes/bandejas.html', diccionario, context_instance=RequestContext(request))
+        return render(request, 'usuario/mensajes/bandejas.html', diccionario)
     else:
         return HttpResponseRedirect('/')
 
@@ -294,12 +294,12 @@ def outbox(request, mensaje='', template_name='usuario/mensajes/bandejas.html'):
         message_list = paginador.page(paginator.num_pages)
     if not mensajes.exists():
         mensaje = 'No tiene ningún mensaje hasta ahora'
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'request':request,
         'mensaje':mensaje,
         'message_list': message_list,
         'tipo_bandeja':'enviados',
-    }, context_instance=RequestContext(request))
+    })
 outbox = login_required(outbox, login_url='/auth')
 
 def trash(request, template_name='user/mensajes/bandeja.html', mensaje=''):
@@ -324,11 +324,11 @@ def trash(request, template_name='user/mensajes/bandeja.html', mensaje=''):
         message_list = paginador.page(paginator.num_pages)
     if not mensajes.exists():
         mensaje = 'No tiene ningún mensaje hasta ahora'
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'message_list': message_list,
         'mensaje':mensaje,
         'request':request,
-    }, context_instance=RequestContext(request))
+    })
 trash = login_required(trash, login_url='/auth')
 
 def compose(request, message_id=None,
@@ -570,7 +570,7 @@ def compose(request, message_id=None,
                 mensaje = form.errors['__all__'].as_text().split('* ')[1]
 
         if form.errors or not valido:
-            return render_to_response(template_name, {
+            return render(request, template_name, {
                 'tipo': 'Redactar',
                 'tipo_mensaje':tipo_mensaje,
                 'mensaje':mensaje,
@@ -578,7 +578,7 @@ def compose(request, message_id=None,
                 'expresion':expresion,
                 'request': request,
                 'form': form,
-            }, context_instance=RequestContext(request))
+            })
 
         elif 'borrador' in request.POST:
             return HttpResponseRedirect('/redactar/%s/' %(message.id))
@@ -614,7 +614,7 @@ def compose(request, message_id=None,
         else:
             persona = "%s.</br /> %s de %s" %(request.user.profile.persona, request.user.profile.persona.cargo_principal.cargo, request.user.profile.persona.cargo_principal.dependencia)
             form.fields['body'].initial = "<br /><br />Sin otro particular al cual hacer referencia, se despide. </br /></br /><b>Atentamente,</br /> %s</b>" %(persona.upper())
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'tipo': 'Redactar',
         'tipo_mensaje':tipo_mensaje,
         'mensaje':mensaje,
@@ -622,7 +622,7 @@ def compose(request, message_id=None,
         'expresion':expresion,
         'request': request,
         'form': form,
-    }, context_instance=RequestContext(request))
+    })
 compose = login_required(compose, login_url='/auth')
 
 def crear_mensaje(destino='', 
@@ -691,23 +691,23 @@ def reply(request, message_id, form_class=ComposeForm,
     now = datetime.datetime.now()
     esta_destinatario = False
 
-    for destinatario in parent.con_copia.get_query_set():
+    for destinatario in parent.con_copia.all():
         if destinatario.grupos == None:
             if destinatario.usuarios.user == user:
                 esta_destinatario = True
                 continue
         elif destinatario.usuarios == None:
-            if user in destinatario.grupos.user_set.get_query_set():
+            if user in destinatario.grupos.user_set.all():
                 esta_destinatario = True
                 continue
 
-    for destinatario in parent.recipient.get_query_set():
+    for destinatario in parent.recipient.all():
         if destinatario.grupos == None:
             if destinatario.usuarios.user == user:
                 esta_destinatario = True
                 continue
         elif destinatario.usuarios == None:
-            if user in destinatario.grupos.user_set.get_query_set():
+            if user in destinatario.grupos.user_set.all():
                 esta_destinatario = True
                 continue
 
@@ -755,18 +755,18 @@ def reply(request, message_id, form_class=ComposeForm,
         cuerpo = "\n\n%s escribió:\n%s" %(parent.sender, parent.body)
         recipient = parent.recipient.add(parent.sender)
         destins = []
-        for recip in parent.recipient.get_query_set():
+        for recip in parent.recipient.all():
             destins.append(recip.id)
         form = form_class(initial={
             'subject': _("Re: %(subject)s") % {'subject': parent.subject},
             'body': cuerpo,
             'recipient': destins
             })
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'tipo': 'Responder',
         'request': request,
         'form': form,
-    }, context_instance=RequestContext(request))
+    })
 reply = login_required(reply, login_url='/auth')
 
 def delete(request, message_id, success_url=None):
@@ -793,13 +793,13 @@ def delete(request, message_id, success_url=None):
     if message.sender.usuarios.user == user:
         message.sender_deleted_at = now
         deleted = True
-    for destinatario in message.recipient.get_query_set():
+    for destinatario in message.recipient.all():
         if destinatario.grupos == None:
             if destinatario.usuarios.user.username == user.username:
                 message.recipient_deleted_at = now
                 deleted = True
         elif destinatario.usuarios == None:
-            if user in destinatario.grupos.user_set.get_query_set():
+            if user in destinatario.grupos.user_set.all():
                 message.recipient_deleted_at = now
                 deleted = True
     if deleted:
@@ -877,7 +877,7 @@ def view(request, message_id, template_name='usuario/mensajes/leer.html', mensaj
             if destinatario.usuarios.user == user:
                 esta_destinatario = True
         elif destinatario.usuarios == None:
-            if user in destinatario.grupos.user_set.get_query_set():
+            if user in destinatario.grupos.user_set.all():
                 esta_destinatario = True
 
     from django_messages.models import Destinatarios
@@ -906,13 +906,13 @@ def view(request, message_id, template_name='usuario/mensajes/leer.html', mensaj
             action_flag     = CHANGE
             )
 
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'loggeado': request.user.is_authenticated,
         'request':request,
         'jefe':jefe,
         'fecha_actual':fecha_actual,
         'message': message,
-    }, context_instance=RequestContext(request))
+    })
 view = login_required(view, login_url='/auth')
 
 def destin_atarios_lookup(request):

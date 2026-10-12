@@ -2,9 +2,8 @@
 import datetime
 from django import forms
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _ 
-from django_select2 import *
-from suit_redactor.widgets import RedactorWidget
+from django.utils.translation import gettext_lazy as _ 
+from django_select2.forms import ModelSelect2MultipleWidget
 from django.contrib.auth.models import User
 from django_messages.models import *
 from django_summernote.widgets import SummernoteWidget
@@ -24,28 +23,25 @@ class BandejaForm(forms.Form):
               'mensaje': SummernoteWidget(),
               }
 
-class ComposeForm(forms.ModelForm):
-    recipient = ModelSelect2MultipleField(
-                                        queryset=Destinatarios.objects, 
-                                        required=False, 
-                                        label='Destinatario', 
-                                        search_fields = ('usuarios__persona__primer_nombre__icontains', #primer nombre
-                                                        'usuarios__persona__primer_apellido__icontains', #primer apellido
-                                                        'usuarios__persona__segundo_nombre__icontains', #segundo nombre
-                                                        'usuarios__persona__segundo_apellido__icontains', #segundo apellido
-                                                        'usuarios__email__icontains') #email
-                                            )
-    recipient.widget.set_placeholder('Usuario o grupo') # Asignar un placeholder al campo
+class DestinatariosWidget(ModelSelect2MultipleWidget):
+    model = Destinatarios
+    search_fields = [
+        'usuarios__persona__primer_nombre__icontains',
+        'usuarios__persona__primer_apellido__icontains',
+        'usuarios__persona__segundo_nombre__icontains',
+        'usuarios__persona__segundo_apellido__icontains',
+        'usuarios__persona__email__icontains',
+        'grupos__name__icontains',
+    ]
 
-    con_copia = ModelSelect2MultipleField(queryset=Destinatarios.objects, 
-                                        required=False,
-                                        search_fields = ('usuarios__persona__primer_nombre__icontains', #primer nombre
-                                                        'usuarios__persona__primer_apellido__icontains', #primer apellido
-                                                        'usuarios__persona__segundo_nombre__icontains', #segundo nombre
-                                                        'usuarios__persona__segundo_apellido__icontains', #segundo apellido
-                                                        'usuarios__email__icontains') #email
-                                        )
-    con_copia.widget.set_placeholder('Usuario o grupo') # Asignar un placeholder al campo
+
+class ComposeForm(forms.ModelForm):
+    recipient = forms.ModelMultipleChoiceField(
+        queryset=Destinatarios.objects.all(), required=False, label='Destinatario',
+        widget=DestinatariosWidget(attrs={'data-placeholder': 'Usuario o grupo'}))
+    con_copia = forms.ModelMultipleChoiceField(
+        queryset=Destinatarios.objects.all(), required=False,
+        widget=DestinatariosWidget(attrs={'data-placeholder': 'Usuario o grupo'}))
 
     body = forms.CharField(widget=SummernoteWidget())
 

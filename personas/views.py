@@ -3,18 +3,18 @@ import random
 from django.contrib.auth.decorators import login_required
 from personas.forms import PerfilForm, FiltroForm
 from django.http import Http404
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.views.decorators.csrf import csrf_protect
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django import forms
 from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.formtools.wizard.views import SessionWizardView
+from formtools.wizard.views import SessionWizardView
 from django.views.generic.base import View
 from django.forms.formsets import formset_factory
 from personas.forms import PreguntasForm
@@ -68,7 +68,7 @@ def contactos(request, template_name='usuario/contactos/contactos.html', mensaje
             c.update({'lista_destinatarios':lista_destinatarios})
             print(lista_destinatarios.object_list)
 
-            return render_to_response(template_name, c)
+            return render(request, template_name, c)
     paginador = Paginator(lista_destinatarios, settings.SUIT_CONFIG['LIST_PER_PAGE'])
     pagina = request.GET.get('page')
     try:
@@ -83,7 +83,7 @@ def contactos(request, template_name='usuario/contactos/contactos.html', mensaje
     c.update({'opcion':opcion})
     c.update({'lista_destinatarios':lista_destinatarios})
 
-    return render_to_response(template_name, c)
+    return render(request, template_name, c)
 contactos = login_required(contactos)
 
 class Perfil(View):
@@ -181,7 +181,7 @@ def password_change(request,
     context.update({'mensaje':mensaje})
     context.update({'tipo_mensaje':tipo_mensaje})
     context.update({'expresion':expresion})
-    return render_to_response(template_name, context)
+    return render(request, template_name, context)
 password_change = login_required(password_change)
 
 class Preguntas_Secretas(View):
@@ -197,7 +197,7 @@ class Preguntas_Secretas(View):
         except:
             raise Http404
         else:
-            if usuario.preguntassecretas_set.get_query_set().exists():
+            if usuario.preguntassecretas_set.all().exists():
                 preguntas = PreguntasSecretas.objects.filter(usuario__id=int(kwargs['user_id']))
                 preguntas = random.sample(preguntas, 3)
                 pregs = []

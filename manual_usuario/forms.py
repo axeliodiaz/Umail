@@ -6,6 +6,7 @@ from django_summernote.widgets import SummernoteWidget
 class ModuloForm(forms.ModelForm):
     class Meta:
         model = Modulo
+        fields = '__all__'
         widgets = {
               'resumen': SummernoteWidget(),
               }
@@ -13,6 +14,7 @@ class ModuloForm(forms.ModelForm):
 class SubModuloForm(forms.ModelForm):
     class Meta:
         model = SubModulo
+        fields = '__all__'
         widgets = {
               'resumen': SummernoteWidget(),
               }

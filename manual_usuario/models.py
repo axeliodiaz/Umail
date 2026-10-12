@@ -17,7 +17,7 @@ class Modulo(models.Model):
         return '%s' %(self.titulo)
 
 class SubModulo(models.Model):
-    modulo = models.ForeignKey('Modulo', verbose_name='módulo')
+    modulo = models.ForeignKey('Modulo', verbose_name='módulo', on_delete=models.CASCADE)
     titulo = models.CharField(max_length=100, verbose_name='título')
     alineacion = models.CharField(max_length=10,choices=ALINEADO, default='', verbose_name='alineación')
     imagen = models.ImageField(upload_to='manual/',null=True, blank=True)

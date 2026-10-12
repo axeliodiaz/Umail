@@ -1,105 +1,105 @@
 [
 {
     "pk": 1, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Segundo apellido de su abuelo/a"
     }
 },
 {
     "pk": 2, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Nombre de su primera mascota"
     }
 },
 {
     "pk": 3, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Nombre de su primer/a novio/a"
     }
 },
 {
     "pk": 4, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Segundo nombre de su hermano/a mayor"
     }
 },
 {
     "pk": 5, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Cu\u00e1l es su n\u00famero de calzado"
     }
 },
 {
     "pk": 6, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Su primer n\u00famero telef\u00f3nico"
     }
 },
 {
     "pk": 7, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Lugar de nacimiento de su primer/a hijo/a"
     }
 },
 {
     "pk": 8, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "A\u00f1o de nacimiento de su madre"
     }
 },
 {
     "pk": 9, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "A\u00f1o de nacimiento de su padre"
     }
 },
 {
     "pk": 10, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Nombre de su plato favorito de comida"
     }
 },
 {
     "pk": 11, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Marca de autom\u00f3viles preferidos"
     }
 },
 {
     "pk": 12, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Nombre de su profesor/a favorito/a"
     }
 },
 {
     "pk": 13, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Pasatiempo favorito"
     }
 },
 {
     "pk": 14, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Animal favorito"
     }
 },
 {
     "pk": 15, 
-    "model": "auth.pregunta", 
+    "model": "accounts.pregunta", 
     "fields": {
         "opcion": "Color favorito"
     }

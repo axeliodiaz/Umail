@@ -54,7 +54,7 @@ def negrillas(request,id_message):
     mensaje = Message.objects.get(id=id_message)
     destinatario = Destinatarios.objects.get(usuarios__user=request.user)
     # Si esta entre los leídos, retornar False para que NO renderice negrillas
-    if destinatario in mensaje.leido_por.get_query_set():
+    if destinatario in mensaje.leido_por.all():
         return False
     else:
         return True

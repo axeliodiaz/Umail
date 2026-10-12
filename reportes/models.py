@@ -20,9 +20,9 @@ class Comentarios(models.Model):
         return '%s: %s'%(self.correo, self.pregunta)
 
 class Respuestas(models.Model):
-    pregunta = models.ForeignKey('Comentarios', editable=False)
+    pregunta = models.ForeignKey('Comentarios', editable=False, on_delete=models.CASCADE)
     comentario = models.TextField()
-    usuario = models.ForeignKey(UserProfile, null=True, blank=True, editable=False)
+    usuario = models.ForeignKey(UserProfile, null=True, blank=True, editable=False, on_delete=models.CASCADE)
     respondido = models.BooleanField(default=False, editable=False)
     class Meta:
         db_table            = 'respuestas'

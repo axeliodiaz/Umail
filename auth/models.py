@@ -1,40 +1,10 @@
 # -*- coding: utf8
 from django.db import models
-from django.contrib.auth.models import User, UserManager, Permission, GroupManager
+from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils.translation import ugettext, ugettext_lazy as _
-#User.add_to_class('sede', models.ForeignKey(Sedes,null=True))
-from django.core.validators import MaxLengthValidator #Clase para establecer la cantidad de caracteres del username del admin
-
-NEW_USERNAME_LENGTH = 250 # Variable de tamaño
-
-def username_largo():
-    ''' Función para establecer el tamaño del campo username del modelo User de Django que por defecto es de 30 y por la validación no dejaba editar en el admin los usuarios con mas de 30 caracteres '''
-    username = User._meta.get_field("username")
-    username.max_length = NEW_USERNAME_LENGTH
-    for v in username.validators:
-        if isinstance(v, MaxLengthValidator):
-            v.limit_value = NEW_USERNAME_LENGTH
-
-username_largo() # Llamado a la función la cual debe ser antes de cargar la app django.contrib.auth
-
-class Group(models.Model):
-    name = models.CharField(_('name'), max_length=80, unique=True)
-    permissions = models.ManyToManyField(Permission,
-        verbose_name=_('permissions'), blank=True)
-
-    objects = GroupManager()
-
-    class Meta:
-        verbose_name = _('group')
-        verbose_name_plural = _('groups')
-
-    def __str__(self):
-        return '%s' %(self.name)
-
-    def natural_key(self):
-        return (self.name,)
+from django.utils.translation import gettext, gettext_lazy as _
+#User.add_to_class('sede', models.ForeignKey(Sedes,null=True, on_delete=models.CASCADE))
 
 class Pregunta(models.Model):
     opcion = models.CharField(max_length=50, verbose_name='opción')
@@ -43,9 +13,9 @@ class Pregunta(models.Model):
         return '%s' %(self.opcion)
 
 class PreguntasSecretas(models.Model):
-    pregunta = models.ForeignKey('Pregunta')
+    pregunta = models.ForeignKey('Pregunta', on_delete=models.CASCADE)
     respuesta = models.CharField(max_length=300)
-    usuario = models.ForeignKey(User)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     class Meta:
         verbose_name = 'Pregunta secreta'
         verbose_name_plural = 'Preguntas secretas'
@@ -54,8 +24,8 @@ class PreguntasSecretas(models.Model):
 
 class UserProfile(models.Model):
     from personas.models import Personas
-    user=models.ForeignKey(User)
-    persona=models.OneToOneField(Personas,null=False,help_text='Por favor, ingrese nombre, apellido o cédula de la persona')
+    user=models.ForeignKey(User, on_delete=models.CASCADE)
+    persona=models.OneToOneField(Personas,null=False,help_text='Por favor, ingrese nombre, apellido o cédula de la persona', on_delete=models.CASCADE)
     notificaciones=models.BooleanField(default=False,help_text='Active esta casilla si desea el envío de notificaciones a su correo electrónico')
 
     class Meta:
@@ -66,7 +36,7 @@ class UserProfile(models.Model):
         return '%s %s' %(self.persona.primer_nombre, self.persona.primer_apellido)
 
     def natural_key(self):
-        return '%s (%s)' %(self.persona.natural_key(),self.user.__unicode__() )
+        return '%s (%s)' %(self.persona.natural_key(),str(self.user) )
 
 def funcion(u):
     if not hasattr(u, '_cached_profile'):
@@ -84,7 +54,7 @@ def save_group_dest(sender, **kwargs):
     grupo = Group.objects.get_or_create(name = 'Nadie')
     '''
 
-@receiver(post_save, sender='UserProfile')
+@receiver(post_save, sender=UserProfile)
 def save_user_dest(sender, **kwargs):
     ''' Guardar en la tabla Destinatarios el usuario creado '''
     from django_messages.models import Destinatarios

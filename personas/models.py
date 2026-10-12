@@ -15,7 +15,7 @@ class Personas(models.Model):
     genero                  = models.IntegerField(choices=((0,'Masculino'),(1,'Femenino')),default=0,verbose_name='género')
     email                   = models.EmailField()
     telefono                = models.CharField(max_length=15, null=True, blank=True, verbose_name='teléfono', help_text='Por favor, incluya el código de telefonía o área.')
-    cargo_principal         = models.ForeignKey('Personal',related_name='cargo_principal')
+    cargo_principal         = models.ForeignKey('Personal',related_name='cargo_principal', on_delete=models.CASCADE)
     cargos_autorizados      = models.ManyToManyField('Personal', null=True, blank=True, default=None, related_name='cargos_autorizados')
     class Meta:
         db_table            = 'personas'
@@ -33,7 +33,7 @@ def save_pers_user(sender, **kwargs):
     from django_messages.models import Destinatarios
     persona = kwargs['instance']
     usuario = User.objects.filter(models.Q(username=persona.email)|models.Q(email=persona.email))
-    usuario_perfil = UserProfile.objects.filter(user=usuario)
+    usuario_perfil = UserProfile.objects.filter(user__in=usuario)
     if not usuario.exists():
         usuario = User.objects.create_user(username = persona.email, email = persona.email, password = persona.num_identificacion)
         if not usuario_perfil.exists():
@@ -59,9 +59,9 @@ def save_pers_user(sender, **kwargs):
 
 class Personal(models.Model):
     from auth.models import Group
-    tipo_personal           = models.ForeignKey('TipoPersonal')
-    dependencia             = models.ForeignKey(Dependencias)
-    cargo                   = models.ForeignKey(Group,related_name='cargo_principal')
+    tipo_personal           = models.ForeignKey('TipoPersonal', on_delete=models.CASCADE)
+    dependencia             = models.ForeignKey(Dependencias, on_delete=models.CASCADE)
+    cargo                   = models.ForeignKey(Group,related_name='cargo_principal', on_delete=models.CASCADE)
     class Meta:
         db_table = 'personal'
         verbose_name_plural = 'personal'

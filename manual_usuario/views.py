@@ -2,7 +2,7 @@
 from manual_usuario.models import *
 from django.views.generic.base import View
 from lib.umail import msj_expresion, renderizar_plantilla
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 '''
 admin.site.register(Modulo)
 '''
@@ -28,4 +28,4 @@ class Manual(View):
             modulos = Modulo.objects.all()
         context.update({'modulos':modulos.order_by('id')})
         context.update({'request':request})
-        return render_to_response(self.template, context)
+        return render(request, self.template, context)

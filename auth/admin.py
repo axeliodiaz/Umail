@@ -5,7 +5,7 @@ from django.contrib.auth.models import Permission
 from auth.models import Group
 from django.contrib import admin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 from django import forms
 
 class CrearUsuarioForm(UserCreationForm):

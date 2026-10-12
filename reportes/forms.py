@@ -1,20 +1,16 @@
 # -*- coding: utf8 -*-
 from django import forms
 from django_messages.models import Message
-from umail import settings
 from django.contrib.admin import widgets
 from django.utils.safestring import mark_safe
 from reportes.models import Comentarios, Respuestas
-from suit_redactor.widgets import RedactorWidget
+from django_summernote.widgets import SummernoteWidget
 
 
-class HorizontalRadioRenderer(forms.RadioSelect.renderer):
-    def render(self):
-        return mark_safe('\n'.join(['%s\n' % w for w in self]))
 
 OPCIONES = [('entrada', 'Entrada',), ('salida', 'Salida',), ('ambos','Ambos')]
 class LibroMemoForm(forms.Form):
-    opcion = forms.ChoiceField(choices=OPCIONES, widget=forms.RadioSelect(renderer=HorizontalRadioRenderer))
+    opcion = forms.ChoiceField(choices=OPCIONES, widget=forms.RadioSelect)
     fecha_inicio = forms.CharField()
     fecha_fin = forms.CharField()
     class Meta:
@@ -35,16 +31,18 @@ class ConsultaMemoForm(forms.Form):
 class RespuestaForm(forms.ModelForm):
     class Meta:
         model = Respuestas
+        fields = '__all__'
         widgets = {
-                  'comentario': RedactorWidget(editor_options={'lang': 'es'})
+                  'comentario': SummernoteWidget()
                   }
     ordering = ('-respondido',)
 
 class ComentariosForm(forms.ModelForm):
     class Meta:
         model = Comentarios
+        fields = '__all__'
         widgets = {
-                  'comentario': RedactorWidget(editor_options={'lang': 'es'})
+                  'comentario': SummernoteWidget()
                   }
     ordering = ('-respondido',)
 

@@ -1,13 +1,13 @@
 #-*- coding: utf8  
 from django.http import HttpResponseRedirect,HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 from umail import settings
 from django.db import transaction, models
 from django.core import serializers
 from reportlab.lib.colors import black
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from lib import fecha
 import datetime
 from lib.umail import msj_expresion
@@ -20,7 +20,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch, cm, mm
 from django.utils import formats
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from reportlab.graphics.barcode import createBarcodeDrawing
 from django.utils.text import normalize_newlines
 from django.utils.safestring import mark_safe
@@ -111,7 +111,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
 
                 # Saber si consultó algún memorándum
                 c.update({'consulto':True})
-                return render_to_response(template_name, c)
+                return render(request, template_name, c)
 
         else:
             mensaje = consulta_memo.errors['codigo']
@@ -132,7 +132,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
             if valido == False:
                 c.update({'mensaje':mensaje})
                 c.update({'libro_memo':libro_memo})
-                return render_to_response(template_name, c)
+                return render(request, template_name, c)
 
             # Opciones de libro
             #   'entrada': Memos para el usuario
@@ -182,7 +182,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
                 for memo in memos:
                     lista_mensajes = str(memo.id) + ',' + lista_mensajes
                 c.update({'lista_mensajes':lista_mensajes}) # pasamos la misma variable de memos pero para traernosla de vuelta en el hidden para sacar el PDF
-            return render_to_response(template_name, c)
+            return render(request, template_name, c)
         else:
             if 'opcion' not in request.POST and 'codigo' not in request.POST:
                 mensaje = 'Debe elegir un tipo de libro de memos.'
@@ -192,7 +192,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
                 c.update({'request':request})
                 c.update({'libro_memo':libro_memo})
                 c.update({'consulta_memo':consulta_memo})
-                return render_to_response(template_name, c)
+                return render(request, template_name, c)
         if 'lista_mensajes' in request.POST:
             memos = request.POST['lista_mensajes']
             opcion = request.POST['opcion']
@@ -309,7 +309,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
 
 
     c.update({'mensaje':mensaje})
-    return render_to_response(template_name, c)
+    return render(request, template_name, c)
 index = login_required(index)
 
 PAGE_HEIGHT=29.7*cm

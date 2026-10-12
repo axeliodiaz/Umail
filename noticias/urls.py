@@ -1,6 +1,7 @@
+from noticias import views
 # -*- coding: utf-8 -*-
-from django.conf.urls import *
-urlpatterns=patterns('',
-    url(r'^(\d+)$','noticias.views.detalle_noticia', name='detalle_noticia'),
-    (r'^.*$', 'noticias.views.todas_noticias'), #Vista por defecto
-)
+from django.urls import re_path as url
+urlpatterns=[
+    url(r'^(\d+)$',views.detalle_noticia, name='detalle_noticia'),
+    url(r'^.*$', views.todas_noticias), #Vista por defecto
+]

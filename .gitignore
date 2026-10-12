@@ -46,3 +46,8 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+umail/settings/*.conf
+db.sqlite3
+staticfiles/
+__pycache__/
+*.pyc
