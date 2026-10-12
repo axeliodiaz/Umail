@@ -69,11 +69,11 @@ class Estado(models.Model):
 class Pais(models.Model):
     nombre                  = models.CharField(max_length=50)
     class Meta:
-    	db_table            = 'pais'
+        db_table            = 'pais'
         #verbose_name_plural = 'paises'
         verbose_name_plural = 'países'
         verbose_name        = 'país'
     def __str__(self):
-    	return "%s" % (self.nombre)
+        return "%s" % (self.nombre)
 
 
