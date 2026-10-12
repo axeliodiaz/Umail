@@ -1,3 +1,4 @@
+from django.utils.safestring import mark_safe
 # -*- coding: utf8 -*-
 from django import template
 from django.utils.html import escape
@@ -50,7 +51,7 @@ def menu(seccion):
         renderizar = renderizar + url
 
 
-    return format_html(renderizar)
+    return mark_safe(renderizar)
 menu.is_safe = True 
 register.filter(menu)
 
@@ -102,13 +103,13 @@ def estado(mensaje):
         color = "#EA4444" # Rojo
 
     estado_memo = '<div class="col_5" style="background-color:%s" align="center">%s</div> <div>%s...</div>' %(color, mensaje.status.nombre, disminuir_t(mensaje.subject, 40))
-    return format_html(estado_memo)
+    return format_html('<div class="col_5" style="background-color:{}" align="center">{}</div> <div>{}...</div>', color, mensaje.status.nombre, disminuir_t(mensaje.subject, 40))
 estado.is_safe = True 
 register.filter(estado)
 
 def active(request, tipo_bandeja):
     if request.get_full_path().replace('/','').replace('bandeja','') == tipo_bandeja:
-        return format_html('class="active"')
+        return mark_safe('class="active"')
 active.is_safe = True 
 register.filter(active)
 

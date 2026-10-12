@@ -927,5 +927,5 @@ def destin_atarios_lookup(request):
                 results = [ x.subject for x in model_results ]
                 print(results)
     json = simplejson.dumps(results)
-    return HttpResponse(json, mimetype='application/json')
+    return HttpResponse(json, content_type='application/json')
 

@@ -1,4 +1,5 @@
 #-*- coding: utf8  
+import os
 from django.http import HttpResponseRedirect,HttpResponse
 from django.shortcuts import render
 from django.template import RequestContext, loader
@@ -212,7 +213,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
 
             #Libro_Memos_PDF(request, lista_mensajes)
             #def Libro_Memos_PDF(request, memos):
-            response = HttpResponse(mimetype='application/pdf')
+            response = HttpResponse(content_type='application/pdf')
             if opcion == 'ambos':
                 response['Content-Disposition'] = 'attachment; filename=Libro_memorandum_enviados_recibidos.pdf; pagesize=A4;'
                 opcion = 'enviados y recibidos'
@@ -294,7 +295,7 @@ def index(request, template_name='usuario/reportes/reportes.html', mensaje=''):
             for memo in memos:
                 num += 1
                 jefe = jefe_dep(request)
-                tabla.append([num, '%s \n(%s)' %(memo.sender.usuarios.persona.__unicode__(), memo.sender.usuarios.persona.cargo_principal.dependencia.departamento), '%s \n(%s)' %(jefe.usuarios.persona.__unicode__(), jefe.usuarios.persona.cargo_principal.dependencia.departamento), '%s \n(%s)' %(memo.recipient.usuarios.persona.__unicode__(), memo.recipient.usuarios.persona.cargo_principal.dependencia.departamento), '%s/%s/%s' %(memo.sent_at.day, memo.sent_at.month, memo.sent_at.year), memo.subject])
+                tabla.append([num, '%s \n(%s)' %(str(memo.sender.usuarios.persona), memo.sender.usuarios.persona.cargo_principal.dependencia.departamento), '%s \n(%s)' %(str(jefe.usuarios.persona), jefe.usuarios.persona.cargo_principal.dependencia.departamento), '%s \n(%s)' %(str(memo.recipient.usuarios.persona), memo.recipient.usuarios.persona.cargo_principal.dependencia.departamento), '%s/%s/%s' %(memo.sent_at.day, memo.sent_at.month, memo.sent_at.year), memo.subject])
 
                 t1 = Table(tabla, colWidths=('', '', '', '', '', ''))
                 t1.setStyle(TableStyle(x))
@@ -317,7 +318,7 @@ PAGE_WIDTH=21*cm
 
 def libro_memos(request, memos):
     ''' Función para descarga de memorándums en PDF '''
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=Memorándum.pdf; pagesize=A4'
 
     elementos = []
@@ -374,7 +375,7 @@ def libro_memos(request, memos):
 
 def memo(request, message_id):
     ''' Función para descarga de memorándums en PDF '''
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=Memorándum.pdf; pagesize=A4'
 
     elementos = []
@@ -489,7 +490,7 @@ memo = login_required(memo)
 
 def encabezado_constancia(canvas, doc):
     canvas.saveState()
-    canvas.drawImage(settings.STATIC_ROOT+'images/institucion.jpg', 2.0*cm, PAGE_HEIGHT-4.5*cm, width = 100, height = 38)
+    canvas.drawImage(os.path.join(settings.STATICFILES_DIRS[0], 'images', 'institucion.jpg'), 2.0*cm, PAGE_HEIGHT-4.5*cm, width = 100, height = 38)
     canvas.setFont("Helvetica-Bold",10)
     canvas.drawCentredString(PAGE_WIDTH-9.5*cm, PAGE_HEIGHT-3.6*cm, 'REPÚBLICA BOLIVARIANA DE VENEZUELA')
     canvas.drawCentredString(PAGE_WIDTH-9.5*cm, PAGE_HEIGHT-4.0*cm, 'MINISTERIO DEL PODER POPULAR PARA LA EDUCACIÓN SUPERIOR')

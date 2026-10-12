@@ -1,3 +1,4 @@
+from django.utils.safestring import mark_safe
 # -*- coding: utf-8 -*-
 from django.template import Library, Node, TemplateSyntaxError
 from django.utils.html import format_html
@@ -72,15 +73,15 @@ def destin(tipo_dest,id_message):
     destinatario = mensajes[0].recipient
     if destinatario:
         if mensajes.count() > 1:
-            if destinatario.__unicode__().__len__() <= 23:
-                return '%s y %s más' %(destinatario.__unicode__()[:23], mensajes.count()-1)
+            if str(destinatario).__len__() <= 23:
+                return '%s y %s más' %(str(destinatario)[:23], mensajes.count()-1)
             else:
-                return '%s... y %s más' %(destinatario.__unicode__()[:23], mensajes.count()-1)
+                return '%s... y %s más' %(str(destinatario)[:23], mensajes.count()-1)
         else:
-            if destinatario.__unicode__().__len__() <= 23:
+            if str(destinatario).__len__() <= 23:
                 return destinatario
             else:
-                return '%s...' %(destinatario.__unicode__()[:23])
+                return '%s...' %(str(destinatario)[:23])
     else:
         return 'Nadie hasta ahora'
 register.filter(destin)
@@ -94,6 +95,6 @@ def icon_status(id_message):
         icono = '<i class="icon-remove" style="color:#EA4444"></i>'
     elif memo.status.nombre == 'En espera':
         icono = '<i class="icon-time" style="color:#0088CC"></i>'
-    return format_html(icono)
+    return mark_safe(icono)
 register.filter(icon_status)
 

@@ -1,3 +1,4 @@
+from django.utils.safestring import mark_safe
 # -*- coding: utf8 -*-
 from django import template
 from django.utils.html import escape
@@ -21,7 +22,7 @@ def responder_memo(memo,arg):
     elif destinatario.usuarios == None:
         if user in destinatario.grupos.user_set.all():
             tabla = '<a href="/responder/' + str(memo.id) + '" Responder</a> <a href="/archivar/' + str(memo.id) + '" Archivar</a>'
-    return format_html(tabla)
+    return mark_safe(tabla)
 responder_memo.is_safe = True 
 register.filter(responder_memo)
 
