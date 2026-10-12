@@ -1,3 +1,4 @@
+import logging
 import re
 from django.utils.text import wrap
 from django.utils.translation import gettext, gettext_lazy as _
@@ -12,6 +13,8 @@ if "mailer" in settings.INSTALLED_APPS:
     from mailer import send_mail
 else:
     from django.core.mail import send_mail
+
+logger = logging.getLogger(__name__)
 
 def format_quote(sender, body):
     """
@@ -82,5 +85,9 @@ def new_message_email(sender, instance, signal,
             if instance.recipient.email != "":
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,
                     [instance.recipient.email,])
-        except Exception as e:
-            pass #fail silently
+        except Exception:
+            # Memo save must succeed; log a sanitized failure only (no body, recipients, or API key).
+            logger.warning(
+                "Failed to send new message notification email (message_id=%s)",
+                getattr(instance, 'pk', None),
+            )

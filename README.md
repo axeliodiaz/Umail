@@ -8,4 +8,6 @@ Este proyecto tiene como objetivo fundamental implementar un software administra
 
 Python 3.12, Django 6.1, PostgreSQL (the inbox uses `DISTINCT ON`, so SQLite is not supported).
 `render.yaml` defines a free web service and a free Postgres database; `scripts/render_build.sh` installs, migrates and loads the demo fixtures.
-Configuration comes from environment variables: `DATABASE_URL`, `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_DEBUG`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`.
+Configuration comes from environment variables: `DATABASE_URL`, `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_DEBUG`.
+
+Outbound mail uses [django-anymail](https://anymail.dev/en/stable/esps/resend/) with the Resend HTTPS API when `RESEND_API_KEY` is set (`EMAIL_BACKEND=anymail.backends.resend.EmailBackend`). Without that key, Django uses the console email backend so local and demo runs do not send real messages. Set `DEFAULT_FROM_EMAIL` if needed (default: `Umail <noreply@mail.axeldiaz.com>`). Legacy `EMAIL_HOST_*` variables are not used for sending when Resend is configured.
