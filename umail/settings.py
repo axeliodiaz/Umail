@@ -136,6 +136,7 @@ INSTALLED_APPS = (
     'formtools',
     'django_summernote',
     'manual_usuario',
+    'anymail',
 )
 
 SUMMERNOTE_CONFIG = {
@@ -202,14 +203,27 @@ LOGGING = {
     }
 }
 
-# Email (credentials come from the environment, never from the repo)
+# Email via Resend HTTPS (django-anymail). SMTP env vars are legacy and unused when Resend is active.
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL',
+    'Umail <noreply@mail.axeldiaz.com>',
+)
+
+_RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+if _RESEND_API_KEY:
+    EMAIL_BACKEND = 'anymail.backends.resend.EmailBackend'
+    ANYMAIL = {
+        'RESEND_API_KEY': _RESEND_API_KEY,
+    }
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Legacy SMTP settings (not used for outbound mail when RESEND_API_KEY is set)
 EMAIL_USE_TLS = True
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-if not EMAIL_HOST_USER:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'insecure-dev-only-key-change-me')
 if not DEBUG and SECRET_KEY == 'insecure-dev-only-key-change-me' and os.environ.get('DJANGO_REQUIRE_SECRET'):
