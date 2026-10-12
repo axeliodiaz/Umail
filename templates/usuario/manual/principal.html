@@ -1,5 +1,5 @@
 {% include "usuario/base.html" %}
-{% load admin_static %} 
+{% load static %} 
 
 
 <body>
@@ -101,16 +101,16 @@
 
     <div id="middle">
         {% for modulo in modulos %}
-            {% ifequal modulo.alineacion 'Izquierda' %}
+            {% if modulo.alineacion == 'Izquierda' %}
                 <div class="strip white" id="{{ modulo.id }}">
             {% else %}
                 <div class="strip gray" id="{{ modulo.id }}">
-            {% endifequal %}
+            {% endif %}
                 <div class="container">
 
                     <!-- EMAIL -->
                     <div class="row">
-                        {% ifequal modulo.alineacion 'Derecha' %}
+                        {% if modulo.alineacion == 'Derecha' %}
                             <div class="span4">
                                 <img src="/media/{{ modulo.imagen }}">   
                             </div><!-- /.span -->
@@ -122,8 +122,8 @@
                                 {% endif %}
                                 <p><b>{{ modulo.resumen|safe }}</b></p>
                             </div><!-- /.span -->
-                        {% endifequal %}
-                        {% ifequal modulo.alineacion 'Izquierda' %}
+                        {% endif %}
+                        {% if modulo.alineacion == 'Izquierda' %}
                             <div class="span6">
                                 {% if modulo.modulo %}
                                     <h1><a id="link-azul" href="#">{{ modulo.titulo }}</a></h1>
@@ -135,7 +135,7 @@
                             <div class="span4">
                                 <img src="/media/{{ modulo.imagen }}">   
                             </div><!-- /.span -->
-                        {% endifequal %}
+                        {% endif %}
                     </div><!-- /.row -->
                 </div><!-- /.container -->
 

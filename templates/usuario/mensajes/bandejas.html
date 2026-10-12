@@ -1,5 +1,5 @@
 {% include "usuario/base.html" %}
-{% load admin_static %}
+{% load static %}
 
 <body>
 
@@ -50,11 +50,11 @@
                         <tbody>
                             <th><input type="checkbox" id="select_all_items" onchange="javascript:selectAllItems()" name="select_all_items"/></th>
                             <th></th>
-                            {% ifequal tipo_bandeja 'entrada'%}
+                            {% if tipo_bandeja == 'entrada' %}
                             <th>De</th>
                             {% else %}
                             <th>Para</th>
-                            {% endifequal %}
+                            {% endif %}
                             <th>Asunto</th>
                             <th>Fecha</th>
                             {% load inbox %}
@@ -67,11 +67,11 @@
                                         {{ form.id|icon_status }}
                                     </td>
                                     <td>
-                                        {% ifequal tipo_bandeja 'entrada' %}
+                                        {% if tipo_bandeja == 'entrada' %}
                                             {% if not form.read_at %}
                                                 <b>
                                             {% endif %}
-                                                {% ifequal tipo_bandeja 'borradores' %}
+                                                {% if tipo_bandeja == 'borradores' %}
                                                 <a href="{% url 'redactar' form.id %}">
                                                     {{ 'sender'|destin:form.id }}
                                                 </a>
@@ -79,12 +79,12 @@
                                                     <a href="{% url 'leer' form.id %}">
                                                         {{ 'sender'|destin:form.id }}
                                                     </a>
-                                                {% endifequal %}
+                                                {% endif %}
                                             {% if not form.read_at %}
                                                 </b>
                                             {% endif %}
                                         {% else %}
-                                            {% ifequal tipo_bandeja 'borradores' %}
+                                            {% if tipo_bandeja == 'borradores' %}
                                             <a href="{% url 'redactar' form.id %}">
                                                 {{ 'recipient'|destin:form.id }}
                                             </a>
@@ -92,17 +92,17 @@
                                                 <a href="{% url 'leer' form.id %}">
                                                     {{ 'recipient'|destin:form.id }}
                                                 </a>
-                                            {% endifequal %}
+                                            {% endif %}
                                                     
-                                        {% endifequal %}
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% if not form.read_at %}
-                                            {% ifequal tipo_bandeja 'entrada' %}
+                                            {% if tipo_bandeja == 'entrada' %}
                                                 <b>
-                                            {% endifequal %}
+                                            {% endif %}
                                         {% endif %}
-                                            {% ifequal tipo_bandeja 'borradores' %}
+                                            {% if tipo_bandeja == 'borradores' %}
                                                 <a href="{% url 'redactar' form.id %}">
                                                     {{ form.subject }}
                                                 </a>
@@ -110,12 +110,12 @@
                                                 <a href="{% url 'leer' form.id %}">
                                                     {{ form.subject }}
                                                 </a>
-                                            {% endifequal %}
+                                            {% endif %}
                                             
                                         {% if not form.read_at %}
-                                            {% ifequal tipo_bandeja 'entrada' %}
+                                            {% if tipo_bandeja == 'entrada' %}
                                                 </b>
-                                            {% endifequal %}
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                     <td >
@@ -123,11 +123,11 @@
                                         {#<a id="table-striped-degradado"href="{% url 'messages_detail' form.id %}">{{ form.sent_at|date:"D d M P" }}</a>#}
 
                                         {% if not form.read_at %}
-                                            {% ifequal tipo_bandeja 'entrada' %}
+                                            {% if tipo_bandeja == 'entrada' %}
                                                 <b>
-                                            {% endifequal %}
+                                            {% endif %}
                                         {% endif %}
-                                            {% ifequal tipo_bandeja 'borradores' %}
+                                            {% if tipo_bandeja == 'borradores' %}
                                                 <a href="{% url 'redactar' form.id %}">
                                                     {{ form.sent_at|date:"D d M P" }}
                                                 </a>
@@ -135,11 +135,11 @@
                                                 <a href="{% url 'leer' form.id %}">
                                                     {{ form.sent_at|date:"D d M P" }}
                                                 </a>
-                                            {% endifequal %}
+                                            {% endif %}
                                         {% if not form.read_at %}
-                                            {% ifequal tipo_bandeja 'entrada' %}
+                                            {% if tipo_bandeja == 'entrada' %}
                                                 </b>
-                                            {% endifequal %}
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                 </tr>

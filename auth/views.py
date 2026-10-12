@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from noticias.models import *
-from django.core.context_processors import csrf
-from django.shortcuts import render_to_response, render
+from django.template.context_processors import csrf
+from django.shortcuts import render
 from auth.forms import AuthenticacionForm, PreguntasForm
-from django.contrib.auth import authenticate
-from django.contrib.auth.views import login
+from django.contrib.auth import authenticate, login
+from django.utils.deprecation import MiddlewareMixin
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
@@ -39,20 +39,20 @@ class Ayuda(View):
                                 plantilla = template, 
                             )
 
-class AutoLogout: 
+class AutoLogout(MiddlewareMixin): 
     def process_request(self, request): 
-        if not request.user.is_authenticated() : 
+        if not request.user.is_authenticated : 
             return 
 
         try: 
-            if datetime.now() - request.session['last_touch'] > timedelta( 0, settings.AUTO_LOGOUT_DELAY * 60, 0): 
+            if datetime.now() - datetime.fromisoformat(request.session['last_touch']) > timedelta( 0, settings.AUTO_LOGOUT_DELAY * 60, 0): 
                 auth.logout(request) 
                 del request.session['last_touch'] 
                 return 
         except KeyError: 
             pass 
 
-        request.session['last_touch'] = datetime.now()
+        request.session['last_touch'] = datetime.now().isoformat()
 
 class Auth(View):
     tipo_mensaje = ''
@@ -66,8 +66,8 @@ class Auth(View):
     
     def get(self, request, *args, **kwargs):
         self.form = self.form()
-        if request.user.is_authenticated():
-            if request.GET.has_keys['next']:
+        if request.user.is_authenticated:
+            if 'next' in request.GET:
                 return HttpResponseRedirect(request.GET['next'])
             else:
                 return HttpResponseRedirect('/')
@@ -87,13 +87,13 @@ class Auth(View):
         self.diccionario.update({'request':request})
         if usuario.exists(): 
             usuario = usuario[0]
-            user = authenticate(username=usuario, password=request.POST['password'])
+            user = authenticate(request, username=usuario, password=request.POST['password'])
 
             if user is not None:
                 login(request, usuario)
                 #"User is not valid, active and authenticated"
                 if not user.is_active:
-                    self.mensaje = u"La contraseña es válida pero la cuenta ha sido desactivada"
+                    self.mensaje = "La contraseña es válida pero la cuenta ha sido desactivada"
                     (self.tipo_mensaje, self.expresion) = msj_expresion('error')
                     return renderizar_plantilla(request, 
                                         plantilla = self.template, 
@@ -107,7 +107,7 @@ class Auth(View):
                     return HttpResponseRedirect('/preguntas_secretas/')
             else:
                 # El usuario o contraseña eran incorrectos
-                self.mensaje = u"Contraseña incorrecta. Por favor, inténtelo nuevamente"
+                self.mensaje = "Contraseña incorrecta. Por favor, inténtelo nuevamente"
                 (self.tipo_mensaje, self.expresion) = msj_expresion('error')
                 return renderizar_plantilla(request, 
                                     plantilla = self.template, 
@@ -118,7 +118,7 @@ class Auth(View):
                                 )
         else:
             # El usuario no existe
-            self.mensaje = u"No existe el usuario %s. Por favor, confirme sus datos" %(request.POST['username'])
+            self.mensaje = "No existe el usuario %s. Por favor, confirme sus datos" %(request.POST['username'])
             (self.tipo_mensaje, self.expresion) = msj_expresion('error')
             form = self.form(request.POST)
             return renderizar_plantilla(request, 
@@ -140,10 +140,10 @@ class Revisar_preguntas(View):
     form = formset_factory(PreguntasForm, extra = 6)
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
-            if not request.user.preguntassecretas_set.get_query_set().exists():
+        if request.user.is_authenticated:
+            if not request.user.preguntassecretas_set.all().exists():
                 form = self.form()
-                self.mensaje = u'Para su mayor seguridad debe proporcionar algunas preguntas y respuestas secretas'
+                self.mensaje = 'Para su mayor seguridad debe proporcionar algunas preguntas y respuestas secretas'
                 (self.tipo_mensaje, self.expresion) = msj_expresion('alert')
                 return renderizar_plantilla(request, 
                                     plantilla = self.template, 
@@ -158,7 +158,7 @@ class Revisar_preguntas(View):
         else:
             return HttpResponseRedirect('/auth')
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         
         form = self.form(request.POST)
@@ -167,7 +167,6 @@ class Revisar_preguntas(View):
         if form.is_valid():
             posicion = 0
             usuario = request.user
-            transaction.savepoint()
 
             for formulario in form.forms:
                 pregunta = formulario['pregunta'].data
@@ -178,14 +177,13 @@ class Revisar_preguntas(View):
                     PreguntasSecretas.objects.create(usuario=usuario, pregunta=pregunta, respuesta=respuesta)
                 else:
                     (self.tipo_mensaje, self.expresion) = msj_expresion('error')
-                    self.mensaje = u'Al parecer la pregunta "%s" ya la has elegido más de una vez.' %(pregunta)
+                    self.mensaje = 'Al parecer la pregunta "%s" ya la has elegido más de una vez.' %(pregunta)
                     error=True
 
             if not error:
-                transaction.commit()
                 return HttpResponseRedirect('/')
             else:
-                transaction.rollback()
+                transaction.set_rollback(True)
                 return renderizar_plantilla(request, 
                                     plantilla=self.template, 
                                     tipo_mensaje = self.tipo_mensaje, 
@@ -206,7 +204,7 @@ def index(request):
     mensaje = '' 
     loggeado = False
 
-    return render_to_response('usuario/auth/index.html', diccionario)
+    return render(request, 'usuario/auth/index.html', diccionario)
 
 def revisar_comentario(request):
     from umail.settings import ADMINS
@@ -232,8 +230,8 @@ def revisar_comentario(request):
                                                 )
 
         # Enviar correo a los administradores del sistema
-        asunto = u"Pregunta nueva"
-        contenido = u'Tiene un comentario de %s preguntando "%s" con el siguiente mensaje: %s. \n\nTambién puede visitar el mensaje en %s/admin/reportes/comentarios/%s' %(comentario.correo, comentario.pregunta, comentario.comentario, Site.objects.get_current(), comentario.id)
+        asunto = "Pregunta nueva"
+        contenido = 'Tiene un comentario de %s preguntando "%s" con el siguiente mensaje: %s. \n\nTambién puede visitar el mensaje en %s/admin/reportes/comentarios/%s' %(comentario.correo, comentario.pregunta, comentario.comentario, Site.objects.get_current(), comentario.id)
         enviar_email(asunto=asunto, contenido=contenido, correos=correos)
 
         # Se crea una respuesta tentativa

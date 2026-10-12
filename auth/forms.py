@@ -16,9 +16,9 @@ class AuthenticacionForm(AuthenticationForm):
         if username and password:
             self.user_cache = authenticate(username=username, password=password)
             if self.user_cache is None:
-                raise forms.ValidationError(u"Introduzca el usuario y/o contraseña correcta.")
+                raise forms.ValidationError("Introduzca el usuario y/o contraseña correcta.")
             elif not self.user_cache.is_active:
-                raise forms.ValidationError(u"Esta cuenta está inactiva.")
+                raise forms.ValidationError("Esta cuenta está inactiva.")
 
 class PreguntasForm(forms.ModelForm):
     class Meta:

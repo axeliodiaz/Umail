@@ -5,11 +5,11 @@
 	<a href="{% url 'bandeja' 'entrada' %}" id="link-negro">
 	<i class="icon-download-alt icon-large"></i>
 		Recibidos
-    	{% ifnotequal request|num_entrada 0 %}
+    	{% if request|num_entrada != 0 %}
         <span class="label label-info pull-right" style="margin-top:6px">
             {{ request|num_entrada }}
         </span>
-        {% endifnotequal %}
+        {% endif %}
     </a>
 </li>
 <li {{ request|active:'enviados' }} id="li-ancho">
@@ -22,18 +22,18 @@
 </li>
 
 
-{% ifequal request.user.profile.persona.cargo_principal.cargo request.user.profile.persona.cargo_principal.dependencia.cargo_max %}
+{% if request.user.profile.persona.cargo_principal.cargo == request.user.profile.persona.cargo_principal.dependencia.cargo_max %}
 <li {{ request|active:'por_aprobar' }} id="li-ancho">
 	<a href="{% url 'bandeja' 'por_aprobar' %}" id="link-negro">
 	<i class=" icon-file icon-large"></i>Por aprobar
-    	{% ifnotequal request|num_por_aprobar 0 %}
+    	{% if request|num_por_aprobar != 0 %}
         <span class="label label-info pull-right" style="margin-top:6px">
             {{ request|num_por_aprobar }}
         </span>
-        {% endifnotequal %}
+        {% endif %}
     </a>
 </li>
-{% endifequal %}
+{% endif %}
 <li {{ request|active:'archivados' }} id="li-ancho">
 	<a href="{% url 'bandeja' 'archivados' %}" id="link-negro">
 	<i class="icon-folder-open icon-large"></i>Archivados</a>

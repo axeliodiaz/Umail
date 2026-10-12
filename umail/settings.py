@@ -5,25 +5,24 @@ import glob
 
 USE_THOUSAND_SEPARATOR = True
 
-conffiles = glob.glob(os.path.join(os.path.dirname(__file__), 'settings', '*.conf'))
-conffiles.sort()
-for f in conffiles:
-        execfile(os.path.abspath(f))
-
 import dj_database_url
-import socket
-if not socket.gethostbyname(socket.gethostname()).__contains__('127.0.'):
-    DATABASES['default'] =  dj_database_url.config()
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default='sqlite:///' + os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'db.sqlite3'),
+    )
+}
 
 LOGIN_URL='/auth'
 
-DEBUG = False
-TEMPLATE_DEBUG = DEBUG
-ALLOWED_HOSTS = ['umail.herokuapp.com','localhost']
+DEBUG = os.environ.get('DJANGO_DEBUG', '') == '1'
+ALLOWED_HOSTS = [h for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',') if h]
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ADMINS = (
-    (u'Axel Díaz', 'diaz.axelio@gmail.com'),
-    (u'Jennifer Montilla', 'montilla.jennifer@gmail.com'),
+    ('Axel Díaz', 'diaz.axelio@gmail.com'),
+    ('Jennifer Montilla', 'montilla.jennifer@gmail.com'),
 # Django settings for umail project.
 )
 
@@ -70,83 +69,55 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT =os.path.join(os.getcwd(), 'static/')
-
-# URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-
-# Additional locations of static files
-STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(os.getcwd(), 'static/public/'),
-)
-
-# List of finder classes that know how to find static files in
-# various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '-9y=r2z)-6fxj@r6&amp;b%xxl)v5e7de0b8l^@-k&amp;8%-qm7g6db3q'
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static', 'public')]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 AUTO_LOGOUT_DELAY = 15 # each 1, one minute
-#AUTO_LOGOUT_DELAY = 1440 # equivalent to 24 hours
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'auth.views.AutoLogout',
-)
+]
 
 ROOT_URLCONF = 'umail.urls'
-
-# Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'umail.wsgi.application'
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/'),
-    os.path.join(os.getcwd(), 'templates'),
-    os.path.join(os.getcwd(), 'templates/admin'),
-)
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [
+        os.path.join(BASE_DIR, 'umail', 'templates'),
+        os.path.join(BASE_DIR, 'templates'),
+    ],
+    'APP_DIRS': True,
+    'OPTIONS': {'context_processors': [
+        'django.template.context_processors.debug',
+        'django.template.context_processors.request',
+        'django.contrib.auth.context_processors.auth',
+        'django.contrib.messages.context_processors.messages',
+        'django.template.context_processors.media',
+        'django.template.context_processors.static',
+    ]},
+}]
 # magically include jqueryUI/js/css
 AJAX_SELECT_BOOTSTRAP = True
 AJAX_SELECT_INLINES = 'inline'
 
 INSTALLED_APPS = (
-    'auth',
-    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -155,23 +126,16 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
-    'django.contrib.admin',
+    'auth.apps.AccountsConfig',
     'django_messages',
 	'personas',
     'sedes',
     'noticias',
     'reportes',
     'django_select2',
-    'suit_redactor',
-    'south',
+    'formtools',
     'django_summernote',
     'manual_usuario',
-)
-#Configuraciones Django-suit
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
-
-TEMPLATE_CONTEXT_PROCESSORS = TCP + (
-    'django.core.context_processors.request',
 )
 
 SUMMERNOTE_CONFIG = {
@@ -209,8 +173,6 @@ SUIT_CONFIG = {
     'LIST_PER_PAGE': 15
 }
 
-#Configuraciones Django-suit
-
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -239,3 +201,20 @@ LOGGING = {
         },
     }
 }
+
+# Email (credentials come from the environment, never from the repo)
+EMAIL_USE_TLS = True
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+if not EMAIL_HOST_USER:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'insecure-dev-only-key-change-me')
+if not DEBUG and SECRET_KEY == 'insecure-dev-only-key-change-me' and os.environ.get('DJANGO_REQUIRE_SECRET'):
+    raise RuntimeError('DJANGO_SECRET_KEY must be set')
+
+# Behind Render's TLS-terminating proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', 'https://*.onrender.com').split(',') if o]

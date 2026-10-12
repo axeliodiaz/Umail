@@ -19,8 +19,8 @@ _bigBangScalar = -4345732  # based on (-9999, 1, 1) BC/BCE minimum
 _bigCrunchScalar = 2958463  # based on (9999,12,31) AD/CE maximum
 _daysInMonthNormal = [31,28,31,30,31,30,31,31,30,31,30,31]
 _daysInMonthLeapYear = [31,29,31,30,31,30,31,31,30,31,30,31]
-_dayOfWeekName = ['Lunes', 'Martes', u'Miércoles', 'Jueves',
-                  'Viernes', u'Sábado', 'Domingo']
+_dayOfWeekName = ['Lunes', 'Martes', 'Miércoles', 'Jueves',
+                  'Viernes', 'Sábado', 'Domingo']
 _monthName = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
@@ -34,16 +34,16 @@ _fmtPat = re.compile('\\{(m{1,5}|yyyy|yy|d{1,4})\\}',re.MULTILINE|re.IGNORECASE)
 _iso_re = re.compile(r'(\d\d\d\d|\d\d)-(\d\d)-(\d\d)')
 
 def getStdMonthNames():
-    return map(string.lower,_monthName)
+    return list(map(string.lower,_monthName))
 
 def getStdShortMonthNames():
-    return map(lambda x: x[:3],getStdMonthNames())
+    return [x[:3] for x in getStdMonthNames()]
 
 def getStdDayNames():
-    return map(string.lower,_dayOfWeekName)
+    return list(map(string.lower,_dayOfWeekName))
 
 def getStdShortDayNames():
-    return map(lambda x: x[:3],getStdDayNames())
+    return [x[:3] for x in getStdDayNames()]
 
 def isLeapYear(year):
     """determine if specified year is leap year, returns Python boolean"""
@@ -167,7 +167,7 @@ class NormalDate:
 
     def dayOfWeek(self):
         """return integer representing day of week, Mon=0, Tue=1, etc."""
-        return apply(dayOfWeek, self.toTuple())
+        return dayOfWeek(*self.toTuple())
 
     def dayOfWeekAbbrev(self):
         """return day of week abbreviation for current date: Mon, Tue, etc."""
@@ -184,7 +184,7 @@ class NormalDate:
         else:
             daysByMonth = _daysInMonthNormal
         priorMonthDays = 0
-        for m in xrange(self.month() - 1):
+        for m in range(self.month() - 1):
             priorMonthDays = priorMonthDays + daysByMonth[m]
         return self.day() + priorMonthDays
 
@@ -391,14 +391,14 @@ class NormalDate:
         else:
             daysByMonth = _daysInMonthNormal
         dc = 0; month = 12
-        for m in xrange(len(daysByMonth)):
+        for m in range(len(daysByMonth)):
             dc = dc + daysByMonth[m]
             if dc >= days:
                 month = m + 1
                 break
         # add up the days in prior months
         priorMonthDays = 0
-        for m in xrange(month - 1):
+        for m in range(month - 1):
             priorMonthDays = priorMonthDays + daysByMonth[m]
         day = days - priorMonthDays
         self.setNormalDate((year, month, day))
@@ -428,10 +428,10 @@ class NormalDate:
         (year, month, day) = self.toTuple()
         days = firstDayOfYear(year) + day - 1
         if self.isLeapYear():
-            for m in xrange(month - 1):
+            for m in range(month - 1):
                 days = days + _daysInMonthLeapYear[m]
         else:
-            for m in xrange(month - 1):
+            for m in range(month - 1):
                 days = days + _daysInMonthNormal[m]
         if year == 1582:
             if month > 10 or (month == 10 and day > 4):
@@ -460,7 +460,7 @@ class NormalDate:
         (year, month, day, ...)"""
         if isinstance(normalDate,int):
             self.normalDate = normalDate
-        elif isinstance(normalDate,basestring):
+        elif isinstance(normalDate,str):
             try:
                 self.normalDate = int(normalDate)
             except:
@@ -468,7 +468,7 @@ class NormalDate:
                 if m:
                     self.setNormalDate(m.group(1)+m.group(2)+m.group(3))
                 else:
-                    raise NormalDateException("unable to setNormalDate(%s)" % `normalDate`)
+                    raise NormalDateException("unable to setNormalDate(%s)" % repr(normalDate))
         elif isinstance(normalDate,_DateSeqTypes):
             self.normalDate = int("%04d%02d%02d" % normalDate[:3])
         elif isinstance(normalDate,NormalDate):
@@ -476,7 +476,7 @@ class NormalDate:
         elif isinstance(normalDate,(datetime.datetime,datetime.date)):
             self.normalDate = (normalDate.year*100+normalDate.month)*100+normalDate.day
         if not self._isValidNormalDate(self.normalDate):
-            raise NormalDateException("unable to setNormalDate(%s)" % `normalDate`)
+            raise NormalDateException("unable to setNormalDate(%s)" % repr(normalDate))
 
     def setYear(self, year):
         if year == 0:
@@ -524,7 +524,7 @@ def dayOfWeek(y, m, d):
     if m == 1 or m == 2:
         m = m + 12
         y = y - 1
-    return (d + 2*m + 3*(m+1)/5 + y + y/4 - y/100 + y/400) % 7
+    return (d + 2*m + 3*(m+1)//5 + y + y//4 - y//100 + y//400) % 7
 
 def firstDayOfYear(year):
     """number of days to the first of the year, relative to Jan 1, 1900"""
@@ -582,17 +582,17 @@ class BusinessDate(NormalDate):
         return self.asNormalDate.daysBetweenDates(normalDate)
 
     def _checkDOW(self):
-        if self.dayOfWeek()>4: raise NormalDateException("%s isn't a business day" % `self.normalDate`)
+        if self.dayOfWeek()>4: raise NormalDateException("%s isn't a business day" % repr(self.normalDate))
 
     def normalize(self, i):
         i = int(i)
-        NormalDate.normalize(self,(i/5)*7+i%5+BDEpochScalar)
+        NormalDate.normalize(self,(i//5)*7+i%5+BDEpochScalar)
 
     def scalar(self):
         d = self.asNormalDate()
         i = d - BDEpoch     #luckily BDEpoch is a Monday so we don't have a problem
                             #concerning the relative weekday
-        return 5*(i/7) + i%7
+        return 5*(i//7) + i%7
 
     def setNormalDate(self, normalDate):
         NormalDate.setNormalDate(self,normalDate)
@@ -601,20 +601,20 @@ class BusinessDate(NormalDate):
 if __name__ == '__main__':
     # Aqui se muestran algunos ejemplos de los distintos formatos para verlos solo ejecuten el archivo python lib/fecha.py
     today = NormalDate()
-    print "NormalDate test:"
-    print "  Today (%s) is: %s %s" % (today, today.dayOfWeekAbbrev(), today.localeFormat())
+    print("NormalDate test:")
+    print("  Today (%s) is: %s %s" % (today, today.dayOfWeekAbbrev(), today.localeFormat()))
     yesterday = today - 1
-    print "  Yesterday was: %s %s" % (yesterday.dayOfWeekAbbrev(), yesterday.localeFormat())
+    print("  Yesterday was: %s %s" % (yesterday.dayOfWeekAbbrev(), yesterday.localeFormat()))
     tomorrow = today + 1
-    print "  Tomorrow will be: %s %s" % (tomorrow.dayOfWeekAbbrev(), tomorrow.localeFormat())
-    print "  Days between tomorrow and yesterday: %d" % (tomorrow - yesterday)
-    print today.formatMS('{d}/{m}/{yy}')
-    print today.formatMS('{dd}/{m}/{yy}')
-    print today.formatMS('{ddd} {d}/{m}/{yy}')
-    print today.formatMS('{dddd} {d}/{m}/{yy}')
-    print today.formatMS('{d}/{mm}/{yy}')
-    print today.formatMS('{d}/{mmm}/{yy}')
-    print today.formatMS('{d}/{mmmm}/{yy}')
-    print today.formatMS('{d}/{m}/{yyyy}')
+    print("  Tomorrow will be: %s %s" % (tomorrow.dayOfWeekAbbrev(), tomorrow.localeFormat()))
+    print("  Days between tomorrow and yesterday: %d" % (tomorrow - yesterday))
+    print(today.formatMS('{d}/{m}/{yy}'))
+    print(today.formatMS('{dd}/{m}/{yy}'))
+    print(today.formatMS('{ddd} {d}/{m}/{yy}'))
+    print(today.formatMS('{dddd} {d}/{m}/{yy}'))
+    print(today.formatMS('{d}/{mm}/{yy}'))
+    print(today.formatMS('{d}/{mmm}/{yy}'))
+    print(today.formatMS('{d}/{mmmm}/{yy}'))
+    print(today.formatMS('{d}/{m}/{yyyy}'))
     b = BusinessDate('20010116')
-    print 'b=',b,'b.scalar()', b.scalar()
+    print('b=',b,'b.scalar()', b.scalar())

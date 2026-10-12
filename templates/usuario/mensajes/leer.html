@@ -1,5 +1,5 @@
 {% include "usuario/base.html" %}
-{% load admin_static %}
+{% load static %}
 
 
 <body>
@@ -219,9 +219,9 @@
                 {% if message.borrador %}
                     <a href="{% url 'redactar' message.id %}">Seguir editando</a>
                 {% endif %}
-                {% ifequal message.estatus.nombre 'Aprobado' %}
+                {% if message.estatus.nombre == 'Aprobado' %}
                     {{ message.id|responder_memo:user.id }}
-                {% endifequal %}
+                {% endif %}
 
             </div>
         </div>

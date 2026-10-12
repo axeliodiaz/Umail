@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: umail
+    runtime: python
+    plan: free
+    buildCommand: ./scripts/render_build.sh
+    startCommand: gunicorn umail.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DATABASE_URL
+        fromDatabase:
+          name: umail-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_REQUIRE_SECRET
+        value: "1"
+      - key: DEMO_ADMIN_PASSWORD
+        generateValue: true
+databases:
+  - name: umail-db
+    plan: free

@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
-from suit_redactor.widgets import RedactorWidget
+from django_summernote.widgets import SummernoteWidget
 
 if "notification" in settings.INSTALLED_APPS:
     from notification import models as notification
@@ -37,8 +37,9 @@ class MessageAdminForm(forms.ModelForm):
 
     class Meta:
         model = Message
+        fields = '__all__'
         widgets = {
-                    'body': RedactorWidget(editor_options={'lang': 'es'})
+                    'body': SummernoteWidget()
                 }
 
     def clean(self):
@@ -52,7 +53,7 @@ class MessageAdminForm(forms.ModelForm):
             # Si el grupo está vacío entonces es a un solo usuario
             if destin.grupos == None:
                 self.cleaned_data['tipo'] = u'Personal'
-            elif destin.grupos.user_set.get_query_set().count() > 1:
+            elif destin.grupos.user_set.all().count() > 1:
                 self.cleaned_data['tipo'] = u'Circular'
             else:
                 self.cleaned_data['tipo'] = u'Personal'
@@ -80,7 +81,7 @@ class MessageAdminForm(forms.ModelForm):
 
             # Revisar que los usuarios no se encuentren en un grupo ya listado
             for usuario in usuarios_dest:
-                if usuario.usuarios.user.groups.get_query_set().filter(id__in=self.cleaned_data['recipient']).exists():
+                if usuario.usuarios.user.groups.all().filter(id__in=self.cleaned_data['recipient']).exists():
                     self.cleaned_data['recipient'].remove(usuario.id)
 
         # --- Con Copia --- #
@@ -107,7 +108,7 @@ class MessageAdminForm(forms.ModelForm):
 
             # Revisar que los usuarios no se encuentren en un grupo ya listado
             for usuario in usuarios_dest:
-                if usuario.usuarios.user.groups.get_query_set().filter(id__in=self.cleaned_data['con_copia']).exists():
+                if usuario.usuarios.user.groups.all().filter(id__in=self.cleaned_data['con_copia']).exists():
                     self.cleaned_data['con_copia'].remove(usuario.id)
 
         '''
@@ -153,14 +154,14 @@ class MessageAdmin(admin.ModelAdmin):
             destin = Destinatarios.objects.get(grupos__name__iexact='Todos')
             revisar_usuarios = False
             destinatarios = obj.recipient
-            for dest in destinatarios.get_query_set():
+            for dest in destinatarios.all():
                 # Cualquier grupo que no sea 'Todos' debe eliminarse de los destinatarios
                 if not dest.id == destin.id:
                     obj.recipient.remove(dest)
                 else:
                     obj.recipient.add(dest)
 
-            recipientes = [str(r[0]) for r in obj.recipient.get_query_set().values_list('id')]
+            recipientes = [str(r[0]) for r in obj.recipient.all().values_list('id')]
             destinatarios = form.cleaned_data['recipient']
             request.POST['recipient'] = '|'.join(recipientes)
             obj.save()

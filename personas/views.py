@@ -3,18 +3,18 @@ import random
 from django.contrib.auth.decorators import login_required
 from personas.forms import PerfilForm, FiltroForm
 from django.http import Http404
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.template import RequestContext
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.views.decorators.csrf import csrf_protect
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django import forms
 from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.formtools.wizard.views import SessionWizardView
+from formtools.wizard.views import SessionWizardView
 from django.views.generic.base import View
 from django.forms.formsets import formset_factory
 from personas.forms import PreguntasForm
@@ -66,9 +66,9 @@ def contactos(request, template_name='usuario/contactos/contactos.html', mensaje
             c.update({'form':form})
             c.update({'opcion':opcion})
             c.update({'lista_destinatarios':lista_destinatarios})
-            print lista_destinatarios.object_list
+            print(lista_destinatarios.object_list)
 
-            return render_to_response(template_name, c)
+            return render(request, template_name, c)
     paginador = Paginator(lista_destinatarios, settings.SUIT_CONFIG['LIST_PER_PAGE'])
     pagina = request.GET.get('page')
     try:
@@ -83,13 +83,13 @@ def contactos(request, template_name='usuario/contactos/contactos.html', mensaje
     c.update({'opcion':opcion})
     c.update({'lista_destinatarios':lista_destinatarios})
 
-    return render_to_response(template_name, c)
+    return render(request, template_name, c)
 contactos = login_required(contactos)
 
 class Perfil(View):
     template = 'usuario/perfil/perfil.html'
     form = PerfilForm
-    mensaje = u'Actualiza toda tu información personal para tener siempre tus datos al día'
+    mensaje = 'Actualiza toda tu información personal para tener siempre tus datos al día'
     (tipo_mensaje, expresion) = msj_expresion('info')
 
     def get(self, request, *args, **kwargs):
@@ -132,7 +132,7 @@ class Perfil(View):
             persona.save()
             user_profile.save()
 
-            self.mensaje = u'¡Tus datos han sido actualizados exitosamente!'
+            self.mensaje = '¡Tus datos han sido actualizados exitosamente!'
             self.tipo_mensaje = 'success'
 
         else:
@@ -168,7 +168,7 @@ def password_change(request,
 
     if form.is_valid():
         form.save()
-        mensaje = u'Contraseña %s exitosamente' %(accion)
+        mensaje = 'Contraseña %s exitosamente' %(accion)
         tipo_mensaje = 'success'
     else:
         tipo_mensaje = 'error'
@@ -181,7 +181,7 @@ def password_change(request,
     context.update({'mensaje':mensaje})
     context.update({'tipo_mensaje':tipo_mensaje})
     context.update({'expresion':expresion})
-    return render_to_response(template_name, context)
+    return render(request, template_name, context)
 password_change = login_required(password_change)
 
 class Preguntas_Secretas(View):
@@ -197,7 +197,7 @@ class Preguntas_Secretas(View):
         except:
             raise Http404
         else:
-            if usuario.preguntassecretas_set.get_query_set().exists():
+            if usuario.preguntassecretas_set.all().exists():
                 preguntas = PreguntasSecretas.objects.filter(usuario__id=int(kwargs['user_id']))
                 preguntas = random.sample(preguntas, 3)
                 pregs = []
@@ -206,7 +206,7 @@ class Preguntas_Secretas(View):
                 preguntas = PreguntasSecretas.objects.filter(id__in=pregs)
                 form = self.form()
 
-                self.mensaje = u'Para su mayor seguridad debe proporcionar algunas preguntas y respuestas secretas'
+                self.mensaje = 'Para su mayor seguridad debe proporcionar algunas preguntas y respuestas secretas'
                 (self.tipo_mensaje, self.expresion) = msj_expresion('alert')
                 return renderizar_plantilla(request, 
                                     plantilla = self.template, 
@@ -240,13 +240,13 @@ class Preguntas_Secretas(View):
         pregunta_3 = PreguntasSecretas.objects.get(id__iexact=pregunta_3)
 
         if not pregunta_1.respuesta == respuesta_1:
-            self.mensaje = u'%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_1, pregunta_1)
+            self.mensaje = '%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_1, pregunta_1)
             self.tipo_mensaje = 'error'
         elif not pregunta_2.respuesta == respuesta_2:
-            self.mensaje = u'%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_2, pregunta_2)
+            self.mensaje = '%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_2, pregunta_2)
             self.tipo_mensaje = 'error'
         elif not pregunta_3.respuesta == respuesta_3:
-            self.mensaje = u'%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_3, pregunta_3)
+            self.mensaje = '%s no es la respuesta para %s. Por favor inténtelo de nuevo' %(respuesta_3, pregunta_3)
             self.tipo_mensaje = 'error'
 
         pregs = []

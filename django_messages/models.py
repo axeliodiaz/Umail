@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.urls import reverse
 import datetime
 from django.db import models
 from django.conf import settings
@@ -7,7 +8,7 @@ from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from auth.models import Group
 from auth.models import UserProfile
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
@@ -43,60 +44,60 @@ class MessageManager(models.Manager):
         return filtro
 
 class Destinatarios(models.Model):
-    grupos = models.ForeignKey(Group, unique=True, null=True, blank=True)
-    usuarios = models.ForeignKey(UserProfile, unique=True, null=True, blank=True)
+    grupos = models.ForeignKey(Group, unique=True, null=True, blank=True, on_delete=models.CASCADE)
+    usuarios = models.ForeignKey(UserProfile, unique=True, null=True, blank=True, on_delete=models.CASCADE)
     class Meta:
-        db_table            = u'destinatarios'
-        verbose_name_plural = u'destinatarios'
-        verbose_name        = u'destinatario'
+        db_table            = 'destinatarios'
+        verbose_name_plural = 'destinatarios'
+        verbose_name        = 'destinatario'
         ordering            = ['usuarios__persona__primer_nombre','usuarios__persona__primer_apellido','grupos__name']
-    def __unicode__(self):
+    def __str__(self):
         if self.usuarios== None:
-            return u'Grupo: %s'%(self.grupos)
+            return 'Grupo: %s'%(self.grupos)
         elif self.grupos == None:
-            return u'%s (%s de %s)'%(self.usuarios, self.usuarios.persona.cargo_principal.cargo.name, self.usuarios.persona.cargo_principal.dependencia.departamento)
+            return '%s (%s de %s)'%(self.usuarios, self.usuarios.persona.cargo_principal.cargo.name, self.usuarios.persona.cargo_principal.dependencia.departamento)
 
 class EstadoMemo(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     modificable = models.ManyToManyField(Group)
-    def __unicode__(self):
-        return u'%s' %(self.nombre)
+    def __str__(self):
+        return '%s' %(self.nombre)
 
 class Adjunto(models.Model):
-    mensaje = models.ForeignKey('Message')
+    mensaje = models.ForeignKey('Message', on_delete=models.CASCADE)
     archivo = models.FileField(upload_to='media/adjuntos/',null=True, blank=True)
     class Meta:
         db_table = 'adjuntos'
-    def __unicode__(self):
-        return u'%s - %s' %(self.mensaje, self.archivo)
+    def __str__(self):
+        return '%s - %s' %(self.mensaje, self.archivo)
 
 class Message(models.Model):
     """
     A private message from user to multiple users
     """
-    recipient = models.ForeignKey('Destinatarios', related_name='received_messages', verbose_name=_("Destinatario"), null=True, blank=True)
+    recipient = models.ForeignKey('Destinatarios', related_name='received_messages', verbose_name=_("Destinatario"), null=True, blank=True, on_delete=models.CASCADE)
     con_copia = models.BooleanField()
     subject = models.CharField(_("Subject"), max_length=255, null=True, blank=True)
     archivo = models.FileField(upload_to='media/adjuntos/',null=True, blank=True)
     body = models.TextField(verbose_name="Texto", null=True)
-    sender = models.ForeignKey('Destinatarios', related_name='sent_messages', verbose_name=_("Sender"))
-    parent_msg = models.ForeignKey('self', related_name='next_messages', null=True, blank=True, verbose_name=_("Parent message"))
+    sender = models.ForeignKey('Destinatarios', related_name='sent_messages', verbose_name=_("Sender"), on_delete=models.CASCADE)
+    parent_msg = models.ForeignKey('self', related_name='next_messages', null=True, blank=True, verbose_name=_("Parent message"), on_delete=models.CASCADE)
     sent_at = models.DateTimeField(_("sent at"), null=True, blank=True)
     read_at = models.DateTimeField(_("read at"), null=True, blank=True)
     replied_at = models.DateTimeField(_("replied at"), null=True, blank=True)
     deleted_at = models.DateTimeField(("Archivado a las"), null=True, blank=True)
-    status = models.ForeignKey('EstadoMemo', null=True, blank=True, verbose_name='Estado')
+    status = models.ForeignKey('EstadoMemo', null=True, blank=True, verbose_name='Estado', on_delete=models.CASCADE)
     tipo = models.CharField(max_length=10, blank=True, null=True)
-    codigo = models.CharField(blank=True, null=True, verbose_name=u'código', max_length=30)
-    num_ident= models.BigIntegerField(blank=True, null=True, verbose_name=u'número identificador')
+    codigo = models.CharField(blank=True, null=True, verbose_name='código', max_length=30)
+    num_ident= models.BigIntegerField(blank=True, null=True, verbose_name='número identificador')
     borrador = models.BooleanField()
 
     objects = MessageManager()
 
     '''
     def clean(self):
-        for destin in self.recipient.get_query_set():
-            if destin in self.con_copia.get_query_set():
+        for destin in self.recipient.all():
+            if destin in self.con_copia.all():
                 raise ValidationError(u'%s está como destinatario y con copia a la vez. Debe estar sólo en una de ambas listas.'%(destin))
     '''
 
@@ -112,16 +113,14 @@ class Message(models.Model):
             return True
         return False
     
-    def __unicode__(self):
+    def __str__(self):
         return self.subject
     
     def get_por_aprobar_url(self):
-        return ('ver_por_aprobar', [self.id])
-    get_por_aprobar_url = models.permalink(get_por_aprobar_url)
+        return reverse('ver_por_aprobar', args=[self.id])
     
     def get_absolute_url(self):
-        return ('messages_detail', [self.id])
-    get_absolute_url = models.permalink(get_absolute_url)
+        return reverse('leer', args=[self.id])
     
     class Meta:
         ordering = ['-sent_at']

@@ -73,7 +73,7 @@
     "pk": 6, 
     "model": "sedes.dependencias", 
     "fields": {
-        "nivel": 9, 
+        "nivel": 8, 
         "tipo_sede": 2, 
         "cargo_max": 5, 
         "dependencia": 2, 

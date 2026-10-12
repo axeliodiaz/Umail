@@ -1,3 +1,4 @@
+from django.utils.safestring import mark_safe
 # -*- coding: utf8 -*-
 from django import template
 from django.utils.html import escape
@@ -19,9 +20,9 @@ def responder_memo(memo,arg):
         if destinatario.usuarios.user == user and not con_copia:
             tabla = '<a href="/responder/' + str(memo.id) + '">Responder</a> <a href="/descargas/memo/' + str(memo.id) + '"Descargar</a><a href="/archivar/' + str(memo.id) + '" Archivar</a>'
     elif destinatario.usuarios == None:
-        if user in destinatario.grupos.user_set.get_query_set():
+        if user in destinatario.grupos.user_set.all():
             tabla = '<a href="/responder/' + str(memo.id) + '" Responder</a> <a href="/archivar/' + str(memo.id) + '" Archivar</a>'
-    return format_html(tabla)
+    return mark_safe(tabla)
 responder_memo.is_safe = True 
 register.filter(responder_memo)
 
