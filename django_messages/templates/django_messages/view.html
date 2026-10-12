@@ -19,9 +19,9 @@
 {{ message.body|linebreaksbr }}<br /><br />
 
 {% for dest in message.recipient.get_query_set %}
-    {% ifequal dest.pk user.pk %}
+    {% if dest.pk == user.pk %}
         <a href="{% url 'messages_reply' message.id %}">{% trans "Reply" %}</a>
-    {% endifequal %}
+    {% endif %}
 {% endfor %}
 <a href="{% url 'messages_delete' message.id %}">{% trans "Delete" %}</a>
 {% endblock %}

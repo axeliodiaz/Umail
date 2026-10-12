@@ -118,7 +118,6 @@ AJAX_SELECT_BOOTSTRAP = True
 AJAX_SELECT_INLINES = 'inline'
 
 INSTALLED_APPS = (
-    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -173,8 +172,6 @@ SUIT_CONFIG = {
     # misc
     'LIST_PER_PAGE': 15
 }
-
-#Configuraciones Django-suit
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
