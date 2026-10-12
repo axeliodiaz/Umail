@@ -214,3 +214,7 @@ if not EMAIL_HOST_USER:
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'insecure-dev-only-key-change-me')
 if not DEBUG and SECRET_KEY == 'insecure-dev-only-key-change-me' and os.environ.get('DJANGO_REQUIRE_SECRET'):
     raise RuntimeError('DJANGO_SECRET_KEY must be set')
+
+# Behind Render's TLS-terminating proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', 'https://*.onrender.com').split(',') if o]
